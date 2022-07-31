@@ -1,9 +1,9 @@
-import { Association, DataTypes, Model } from 'sequelize';
+import { DataTypes, Model } from 'sequelize';
 import { User as IUser } from '../../../../apis/users/users.model';
 import { bcryptHashSync } from '../../../../libs/hash/bscrypt.lib';
 import { rolesArray, RolesEnum } from '../../../../models/roles.model';
+import AppConfig from '../../../app.config';
 import { sequelize } from '../mysql.config';
-import Form from './form';
 
 class User extends Model<IUser> implements IUser {
    declare userID: string;
@@ -11,7 +11,7 @@ class User extends Model<IUser> implements IUser {
    declare firstName: string;
    declare lastName: string;
    declare phone: string;
-   declare avatar: string;
+   declare avatar?: string | any;
    declare cmnd: string;
    declare numberBHXH: string;
    declare address: string;
@@ -20,6 +20,8 @@ class User extends Model<IUser> implements IUser {
    declare role: RolesEnum;
    declare managerID: string;
    declare fullName: string;
+   declare createdAt?: Date | string;
+   declare updatedAt?: Date | string;
 
    // define association
    static associate() {
@@ -40,7 +42,7 @@ User.init(
          defaultValue: DataTypes.UUIDV4,
       },
       staffCode: {
-         type: DataTypes.STRING,
+         type: DataTypes.STRING(30),
          allowNull: false,
          unique: true,
       },
@@ -62,7 +64,15 @@ User.init(
          type: DataTypes.STRING,
          allowNull: true,
       },
-      avatar: DataTypes.STRING,
+      avatar: {
+         type: DataTypes.STRING,
+         get() {
+            if (!this.getDataValue('avatar')) {
+               return null;
+            }
+            return `${AppConfig.ENV.AWS.S3.BASE_URL_AVATAR}/${this.getDataValue('avatar')}`;
+         },
+      },
       cmnd: {
          type: DataTypes.STRING,
          unique: true,

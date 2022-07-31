@@ -1,5 +1,7 @@
+import { RolesEnum } from '../../models/roles.model';
+
 export interface ITokenPayload {
-   _id: string;
+   userID: string;
    email: string;
-   roles: string;
+   role: RolesEnum;
 }

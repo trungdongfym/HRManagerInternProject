@@ -7,6 +7,7 @@ class CodeError {
       409: 'Conflict',
       500: 'Internal Server Error',
    };
+   static readonly UPLOAD_FAIL: string = 'Upload Fail';
    static readonly JWT_EXPIRE: string = 'jwt expire';
    static readonly JWT_INVALID: string = 'jwt invalid';
 }

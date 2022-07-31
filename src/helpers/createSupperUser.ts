@@ -1,23 +1,24 @@
 import { User } from '../apis/users/users.model';
-import UserDB from '../libs/database/user.lib';
+import UserDB from '../libs/database/mysql/user.lib';
 import { RolesEnum } from '../models/roles.model';
+import testSendMail from './testSendMail';
 
 async function createUserAdmin() {
    const newAdmin: User = {
       staffCode: 'Admin02',
-      email: 'trungdong1@gmail.com',
-      firstName: 'Trung',
+      email: 'admin@gmail.com',
+      firstName: 'Le Trung',
       lastName: 'Dong',
-      password: '123',
+      password: 'Ledong1',
       role: RolesEnum.Admin,
    };
    try {
       try {
-         // const user = await UserDB.createOne(newAdmin);
-         const user = await UserDB.getUserByAnyField({});
-         console.log(user);
+         const user = await UserDB.createOne(newAdmin);
+         // const user = await UserDB.findByAnyField({});
+         // console.log(user);
          console.log('--------------Created User Admin-----------');
-         // console.log(user.toJSON());
+         console.log(user.toJSON());
       } catch (error) {
          console.log('Create User Admin Error::\n', error);
       }
@@ -27,3 +28,4 @@ async function createUserAdmin() {
 }
 
 createUserAdmin();
+// testSendMail();

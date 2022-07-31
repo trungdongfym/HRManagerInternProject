@@ -4,6 +4,9 @@ import * as jwt from 'jsonwebtoken';
 import { pickField } from '../../utils/object.utils';
 import { Request } from 'express';
 import { ITokenPayload } from '../../commons/interfaces';
+import HttpErrors from '../error/httpErrors';
+import CodeError from '../error/codeErrors';
+import TypeErrors from '../error/typeError';
 
 function signToken(type: tokenEnum, data: object) {
    const jwtConfig = AppConfig.ENV.SECURITY.JWT;
@@ -22,8 +25,9 @@ function signToken(type: tokenEnum, data: object) {
             });
             break;
          default:
-            break;
+            throw HttpErrors.ServerError('Token type invalid!');
       }
+      return token;
    } catch (error) {
       throw error;
    }
@@ -41,21 +45,35 @@ function verifyToken(type: tokenEnum, token: string): ITokenPayload {
             payload = jwt.verify(token, jwtConfig.REFRESH_TOKEN_SECRET);
             break;
          default:
-            break;
+            throw HttpErrors.ServerError('Token type invalid!');
       }
    } catch (error) {
-      throw error;
+      const err = new HttpErrors({
+         code: CodeError.JWT_EXPIRE,
+         type: TypeErrors.TOKEN_ERROR,
+         message: error.message,
+      });
+      if (error instanceof jwt.TokenExpiredError) {
+         err.setMessage = 'Token is Exprired!';
+         throw err;
+      }
+      if (error instanceof jwt.JsonWebTokenError) {
+         err.setMessage = error.message;
+         err.setCode = CodeError.JWT_INVALID;
+         throw err;
+      }
+      err.setCode = CodeError.BasicError[500];
+      err.setType = TypeErrors.HTTP_ERROR;
+      err.message = error?.message || 'Unknow error!';
+      throw err;
    }
    return payload as ITokenPayload;
 }
 
-function getToken(req: Request): { scheme: string | null; token: string | null } {
+function getToken(req: Request): { scheme: string; token: string } {
    const splitToken = req.get('authorization')?.split(' ');
    if (!splitToken) {
-      return {
-         scheme: null,
-         token: null,
-      };
+      return null;
    }
    return {
       scheme: splitToken[0],
@@ -63,4 +81,13 @@ function getToken(req: Request): { scheme: string | null; token: string | null }
    };
 }
 
-export { signToken, verifyToken, getToken };
+function decodeToken(token: string, options?: jwt.DecodeOptions): ITokenPayload {
+   try {
+      const decoded = jwt.decode(token, options);
+      return decoded as ITokenPayload;
+   } catch (error) {
+      throw error;
+   }
+}
+
+export { signToken, verifyToken, getToken, decodeToken };
