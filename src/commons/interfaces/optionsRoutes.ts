@@ -4,5 +4,4 @@ export interface OptionsRoutes {
    roles?: Array<RolesEnum>;
    preventRoles?: Array<RolesEnum>;
    requireAuth?: boolean;
-   personalPrivacy?: boolean;
 }

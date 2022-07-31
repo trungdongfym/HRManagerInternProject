@@ -8,9 +8,13 @@ export enum RolesEnum {
 
 export const rolesArray = Object.values(RolesEnum);
 
-export enum rolesRank {
-   Admin,
-}
+export const rolesRankMap = {
+   Admin: 100,
+   Drirector: 50,
+   HR: 20,
+   Manager: 20,
+   Employee: 10,
+};
 
 export enum PermissionEnum {
    read = 'R',

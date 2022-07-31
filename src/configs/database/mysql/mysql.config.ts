@@ -5,6 +5,7 @@ const mysqlConfig = AppConfig.ENV.DATABASES.MYSQL;
 const sequelize = new Sequelize(mysqlConfig.database, mysqlConfig.username, mysqlConfig.password, {
    host: mysqlConfig.host,
    dialect: 'mysql',
+   logging: false,
 });
 
 async function connectMySql() {

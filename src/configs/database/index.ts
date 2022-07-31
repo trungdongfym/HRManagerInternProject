@@ -1,4 +1,4 @@
-import redisConnect from './redis/redisConnect';
+import { redisConnect } from './redis/redisConnect';
 import { connectMySql } from './mysql/mysql.config';
 import * as db from './mysql/models';
 

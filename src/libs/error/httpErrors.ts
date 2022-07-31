@@ -109,6 +109,15 @@ class HttpErrors extends Error implements IError {
       };
       return new HttpErrors(errorOption);
    }
+   static UploadError(message?: string, type?: TypeErrors) {
+      const errorOption: IError = {
+         status: StatusCodes.INTERNAL_SERVER_ERROR,
+         type: type || TypeErrors.UPLOAD_ERROR,
+         code: CodeError.UPLOAD_FAIL,
+         message: message || 'Upload File Error!',
+      };
+      return new HttpErrors(errorOption);
+   }
 }
 
 export default HttpErrors;

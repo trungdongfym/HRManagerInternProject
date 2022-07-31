@@ -7,7 +7,7 @@ export interface User {
    lastName?: string;
    fullName?: string;
    phone?: string;
-   avatar?: string;
+   avatar?: string | Express.Multer.File;
    cmnd?: string;
    numberBHXH?: string;
    address?: string;
@@ -17,4 +17,22 @@ export interface User {
    managerID?: string;
    createdAt?: Date | string;
    updatedAt?: Date | string;
+}
+
+export interface IUserAccount {
+   email: string;
+   password: string;
+}
+
+export interface IUserLoginPayload {
+   userID?: string;
+   staffCode?: string;
+   fullName?: string;
+   phone?: string;
+   avatar?: string;
+   cmnd?: string;
+   numberBHXH?: string;
+   address?: string;
+   email?: string;
+   role?: RolesEnum;
 }

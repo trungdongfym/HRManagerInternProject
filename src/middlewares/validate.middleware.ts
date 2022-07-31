@@ -1,6 +1,7 @@
 import HttpErrors from '../libs/error/httpErrors';
 import { ObjectSchema } from 'joi';
 import { RequestHandler, Request, Response, NextFunction } from 'express';
+import FileLib from '../libs/fileHandle/file.lib';
 
 export default class Validate {
    public static validateBody(validationSchema: ObjectSchema): RequestHandler {
@@ -11,14 +12,30 @@ export default class Validate {
             req.body = dataValidated;
             next();
          } catch (error) {
+            if (req.file) {
+               FileLib.removeFile(req.file.path).catch((err) => {
+                  console.log(err);
+               });
+            }
             next(error);
          }
       };
    }
-   private static validateData = async (
-      validationSchema: ObjectSchema,
-      data: object | Array<any> | any
-   ) => {
+
+   public static validateQueryParams(validationSchema: ObjectSchema) {
+      return async (req: Request, res: Response, next: NextFunction) => {
+         const data = req.query;
+         try {
+            const queryParam = await Validate.validateData(validationSchema, data);
+            req.query = queryParam;
+            next();
+         } catch (error) {
+            const err = HttpErrors.BadRequest(error?.message || 'Unknow Error!');
+            next(err);
+         }
+      };
+   }
+   private static validateData = async (validationSchema: ObjectSchema, data: object | Array<any> | any) => {
       try {
          const value = await validationSchema.validateAsync(data);
          return value;

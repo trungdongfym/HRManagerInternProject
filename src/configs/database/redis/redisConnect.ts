@@ -1,22 +1,31 @@
-import * as redis from 'redis';
+import { createClient, RedisClientOptions } from 'redis';
 import AppConfig from '../../app.config';
 
 const redisConfig = AppConfig.ENV.DATABASES.REDIS;
 
-async function redisConnect() {
-   const redisClient = redis.createClient({
-      socket: {
-         host: redisConfig.host,
-         port: redisConfig.port,
-      },
-   });
+const redisConnectOptions: RedisClientOptions = {
+   socket: {
+      host: redisConfig.host,
+      port: redisConfig.port,
+   },
+};
 
+if (redisConfig.username && redisConfig.password) {
+   redisConnectOptions.username = redisConfig.username;
+   redisConnectOptions.password = redisConfig.password;
+}
+
+const redisClient = createClient(redisConnectOptions);
+
+async function redisConnect() {
    redisClient.on('error', (err) => {
       console.log('Redis connect error::', err.message);
    });
 
    redisClient.on('connect', () => {
-      console.log('Redis connected');
+      redisClient.ACL_WHOAMI().then((user) => {
+         console.log(`Redis connected to user: ${user}`);
+      });
    });
 
    redisClient.on('ready', () => {
@@ -25,4 +34,4 @@ async function redisConnect() {
    await redisClient.connect();
 }
 
-export default redisConnect;
+export { redisConnect, redisClient };

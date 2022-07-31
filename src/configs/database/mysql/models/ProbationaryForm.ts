@@ -1,20 +1,28 @@
-import { DataTypes } from 'sequelize';
+import { BelongsTo, DataTypes } from 'sequelize';
 import { IProbationaryForm } from '../../../../apis/forms/forms.model';
+import { FormTypeEnum } from '../../../../models/form.model';
 import { rolesArray, RolesEnum } from '../../../../models/roles.model';
 import { sequelize } from '../mysql.config';
 import Form from './form';
 
 class ProbationaryForm extends Form implements IProbationaryForm {
-   durationTime: number;
-   startTime: Date | string;
-   position: RolesEnum;
-   comments: string;
-   workResult: string;
+   declare durationTime: number;
+   declare startTime: Date | string;
+   declare position: RolesEnum;
+   declare comments: string;
+   declare workResult: string;
+   static Form: BelongsTo;
+
    static associate() {
-      Form.associations['ProbationaryForm'] = Form.hasOne(ProbationaryForm, {
+      Form.associations[FormTypeEnum.ProbationaryForm] = Form.hasOne(ProbationaryForm, {
          foreignKey: 'formID',
          onDelete: 'CASCADE',
-         as: 'probationaryForm',
+         as: FormTypeEnum.ProbationaryForm,
+      });
+      ProbationaryForm.Form = ProbationaryForm.belongsTo(Form, {
+         as: 'form',
+         foreignKey: 'formID',
+         constraints: false,
       });
    }
 }
