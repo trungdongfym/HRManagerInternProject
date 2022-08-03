@@ -36,15 +36,12 @@ ProbationaryForm.init(
       },
       durationTime: {
          type: DataTypes.INTEGER.UNSIGNED,
-         allowNull: false,
       },
       startTime: {
          type: DataTypes.DATE,
-         allowNull: false,
       },
       position: {
          type: DataTypes.ENUM(...rolesArray),
-         allowNull: false,
       },
       comments: {
          type: DataTypes.STRING,

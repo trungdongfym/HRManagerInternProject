@@ -192,6 +192,9 @@ class AnualFormService {
             throw HttpErrors.BadRequest('formID is required!');
          }
          const annualForm = await db.Form.scope(FormScope.populateAnnualForm).findByPk(formID);
+         if (!annualForm) {
+            throw HttpErrors.NotFound(`AnnualReviewForm form with formID ${formID} not exists!`);
+         }
          if (actor.role === RolesEnum.Manager || actor.role === RolesEnum.Employee) {
             if (annualForm.ownerID !== actor.userID) {
                throw HttpErrors.Forbiden(`You don't have permission to get this resource!`);

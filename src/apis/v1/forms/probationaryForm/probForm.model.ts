@@ -1,10 +1,11 @@
 import { FormTypeEnum } from '../../../../models/form.model';
+import { RolesEnum } from '../../../../models/roles.model';
 import { IForm } from '../forms.model';
 
 export interface IProbationaryForm extends IForm {
    durationTime: number;
    startTime: Date | string;
-   position: string;
+   position: RolesEnum;
    comments: string;
    workResult: string;
 }
@@ -26,14 +27,20 @@ const formFakeData: Required<IForm> = {
 };
 
 const probFormFakeData: Omit<IProbationaryForm, keyof IForm> = {
-   durationTime: `${FormTypeEnum.ProbationaryForm}.department` as any,
+   durationTime: `${FormTypeEnum.ProbationaryForm}.durationTime` as any,
    startTime: `${FormTypeEnum.ProbationaryForm}.startTime` as any,
    position: `${FormTypeEnum.ProbationaryForm}.position` as any,
    comments: `${FormTypeEnum.ProbationaryForm}.comments` as any,
    workResult: `${FormTypeEnum.ProbationaryForm}.workResult` as any,
 };
 
+// a object contain all properties of IAnualFormData
+export const probFormObject: Required<IProbationaryForm> = {
+   ...formFakeData,
+   ...probFormFakeData,
+};
 const keysProbForm = Object.keys(probFormFakeData);
+export const probFieldToSelectAttr = Object.values(probFormObject);
 
 export function probFormDataFactory(anualFormData: Object): IProbFormData {
    const keysForm = Object.keys(formFakeData);
@@ -50,4 +57,16 @@ export function probFormDataFactory(anualFormData: Object): IProbFormData {
       }
    }
    return result as IProbFormData;
+}
+
+export function filterProbFormFactory(filterData: Object) {
+   const filterDataClone = JSON.parse(JSON.stringify(filterData));
+   for (const [key, val] of Object.entries(filterDataClone)) {
+      // Generate new key for nested associations access
+      if (keysProbForm.includes(key)) {
+         delete filterDataClone[key];
+         filterDataClone[`$${probFormFakeData[key]}$`] = val;
+      }
+   }
+   return filterDataClone;
 }
