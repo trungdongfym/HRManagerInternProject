@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { IAdminQueryUserParams, ITokenPayload, IUserQueryParams } from '../../commons/interfaces';
-import HttpErrors from '../../libs/error/httpErrors';
+import { ITokenPayload } from '../../../commons/interfaces';
+import HttpErrors from '../../../libs/error/httpErrors';
 import { IUserAccount, User } from './users.model';
 import UserService from './users.service';
 

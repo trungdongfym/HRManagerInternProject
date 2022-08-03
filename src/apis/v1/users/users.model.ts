@@ -1,4 +1,4 @@
-import { RolesEnum } from '../../models/roles.model';
+import { RolesEnum } from '../../../models/roles.model';
 
 export interface User {
    userID?: string;

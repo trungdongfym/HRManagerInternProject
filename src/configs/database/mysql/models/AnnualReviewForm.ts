@@ -1,10 +1,11 @@
 import { BelongsTo, DataTypes } from 'sequelize';
-import { IAnnualReviewForm } from '../../../../apis/forms/forms.model';
+import { IAnnualReviewForm } from '../../../../apis/v1/forms/forms.model';
 import { FormTypeEnum } from '../../../../models/form.model';
 import { sequelize } from '../mysql.config';
 import Form from './form';
 
 class AnnualReviewForm extends Form implements IAnnualReviewForm {
+   declare department: string;
    declare year: string | Date;
    declare review: string;
    declare point: number;
@@ -32,9 +33,11 @@ AnnualReviewForm.init(
          defaultValue: DataTypes.UUIDV4,
          primaryKey: true,
       },
+      department: {
+         type: DataTypes.STRING,
+      },
       year: {
-         type: DataTypes.DATE,
-         defaultValue: new Date(),
+         type: DataTypes.INTEGER({ length: 4 }),
          allowNull: false,
       },
       review: {

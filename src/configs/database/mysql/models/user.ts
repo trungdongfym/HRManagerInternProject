@@ -1,5 +1,5 @@
-import { DataTypes, Model } from 'sequelize';
-import { User as IUser } from '../../../../apis/users/users.model';
+import { DataTypes, Model, Op, Sequelize } from 'sequelize';
+import { User as IUser } from '../../../../apis/v1/users/users.model';
 import { bcryptHashSync } from '../../../../libs/hash/bscrypt.lib';
 import { rolesArray, RolesEnum } from '../../../../models/roles.model';
 import AppConfig from '../../../app.config';
@@ -100,6 +100,18 @@ User.init(
       modelName: 'User',
       tableName: 'User',
       paranoid: true,
+      scopes: {
+         populateManager: {
+            include: [
+               {
+                  model: User,
+                  as: 'manager',
+                  attributes: ['userID', 'firstName', 'lastName', 'email', 'phone', 'avatar', 'role'],
+                  on: { userID: { [Op.eq]: Sequelize.col('user.managerID') } },
+               },
+            ],
+         },
+      },
    }
 );
 

@@ -1,21 +1,21 @@
 import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { StatusCodes } from 'http-status-codes';
 import { FindOptions, Op, Sequelize } from 'sequelize';
-import { IAdminQueryUserParams, IUserQueryParams } from '../../commons/interfaces';
-import AppConfig from '../../configs/app.config';
-import { db } from '../../configs/database';
-import { signToken } from '../../libs/authentication/token.lib';
-import { S3Lib } from '../../libs/aws';
-import { UserDB } from '../../libs/database/mysql';
-import { RedisLib } from '../../libs/database/redis';
-import CodeError from '../../libs/error/codeErrors';
-import HttpErrors from '../../libs/error/httpErrors';
-import FileLib from '../../libs/fileHandle/file.lib';
-import { bcryptCompare } from '../../libs/hash/bscrypt.lib';
-import { RolesEnum } from '../../models/roles.model';
-import { tokenEnum } from '../../models/token.model';
-import { userProtectFieldArray } from '../../models/user.model';
-import { checkData, checkFieldContaint } from '../../utils/object.utils';
+import { IAdminQueryUserParams, IUserQueryParams } from '../../../commons/interfaces';
+import AppConfig from '../../../configs/app.config';
+import { db } from '../../../configs/database';
+import { signToken } from '../../../libs/authentication/token.lib';
+import { S3Lib } from '../../../libs/aws';
+import { UserDB } from '../../../libs/database/mysql';
+import { RedisLib } from '../../../libs/database/redis';
+import CodeError from '../../../libs/error/codeErrors';
+import HttpErrors from '../../../libs/error/httpErrors';
+import FileLib from '../../../libs/fileHandle/file.lib';
+import { bcryptCompare } from '../../../libs/hash/bscrypt.lib';
+import { RolesEnum } from '../../../models/roles.model';
+import { tokenEnum } from '../../../models/token.model';
+import { userProtectFieldArray } from '../../../models/user.model';
+import { checkData, checkFieldContaint } from '../../../utils/object.utils';
 import { IUserAccount, IUserLoginPayload, User } from './users.model';
 
 class UserService {
@@ -195,7 +195,7 @@ class UserService {
    }
 
    public async getUsers(queryParam: IAdminQueryUserParams, role: RolesEnum) {
-      const { user, page, pageSize, requireManager } = queryParam;
+      const { user, page, pageSize, requireManager, roles } = queryParam;
       const findOptions: FindOptions = {
          logging: false,
          attributes: {
@@ -206,10 +206,25 @@ class UserService {
          if (role !== RolesEnum.Admin) {
             throw HttpErrors.Forbiden(CodeError.BasicError[StatusCodes.FORBIDDEN]);
          }
+         let flagCheckSkipDB = false;
+         let isPagination = false;
+         if (checkFieldContaint(queryParam, ['page', 'pageSize'])) {
+            isPagination = true;
+         }
          // with user attribute, no pagination
-         if (checkFieldContaint(queryParam, ['page', 'pageSize']) && !user) {
+         if (isPagination && !user && !roles) {
             findOptions.offset = pageSize * page;
             findOptions.limit = pageSize;
+            flagCheckSkipDB = true;
+         }
+         if (user) {
+            findOptions.where = { ...user };
+         }
+         if (roles) {
+            findOptions.where = {
+               ...findOptions.where,
+               role: { [Op.in]: roles },
+            };
          }
          if (requireManager) {
             findOptions.include = [
@@ -221,10 +236,23 @@ class UserService {
                },
             ];
          }
-         return await db.User.findAndCountAll({
-            where: { ...user },
-            ...findOptions,
-         });
+         interface userPaginationType {
+            rows: db.User[];
+            count: number;
+         }
+         let users: db.User[] | userPaginationType;
+         if (isPagination) {
+            users = await db.User.findAndCountAll(findOptions);
+            if (isPagination && !flagCheckSkipDB) {
+               // limit and skip hand made :v, củ chuối
+               users.rows = users.rows.slice(page * pageSize, pageSize * page + pageSize);
+            }
+         } else {
+            users = await db.User.findAll(findOptions);
+         }
+         // const test = await db.User.scope('populateManager').findAll();
+         // return test;
+         return users;
       } catch (error) {
          throw error;
       }

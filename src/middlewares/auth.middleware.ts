@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import { User } from '../apis/users/users.model';
+import { User } from '../apis/v1/users/users.model';
 import { ITokenPayload } from '../commons/interfaces';
 import { decodeToken, getToken, verifyToken } from '../libs/authentication/token.lib';
 import { RedisLib } from '../libs/database/redis';
