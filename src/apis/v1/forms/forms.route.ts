@@ -41,6 +41,14 @@ CustomRouter.patch(
 );
 
 CustomRouter.get(
+   '/formStore',
+   [Validate.validateQueryParams(FormValidate.queryFormStoreSchema), formCtrl.getFormStore],
+   {
+      preventRoles: [RolesEnum.Employee, RolesEnum.Drirector],
+   }
+);
+
+CustomRouter.get(
    '/reportForms',
    [Validate.validateQueryParams(FormValidate.queryReportFormSchema), formCtrl.reportForm],
    {

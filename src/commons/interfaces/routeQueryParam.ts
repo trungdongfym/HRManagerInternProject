@@ -1,3 +1,4 @@
+import { IFormStore } from '../../apis/v1/forms/forms.model';
 import { User } from '../../apis/v1/users/users.model';
 import { RolesEnum } from '../../models/roles.model';
 
@@ -44,3 +45,5 @@ export interface IReportQueryParams<DataModel> {
 
 // FormModel: AnnualForm or ProbationaryForm
 export interface IFormQueryParams<FormModel> extends IPaginationParams, IUtilsParams<FormModel> {}
+
+export interface IFormStoreQueryParams extends IPaginationParams, IUtilsParams<IFormStore> {}

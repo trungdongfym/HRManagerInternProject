@@ -84,6 +84,22 @@ class FormController {
       }
    }
 
+   public async getFormStore(req: Request, res: Response) {
+      try {
+         const formStoreQuery = req.query;
+         const deepCloneQuery = JSON.parse(JSON.stringify(formStoreQuery));
+         const { user } = req as any;
+         const probForms = await formService.getFormStore(formStoreQuery, user);
+         res.json({
+            data: probForms,
+            meta: deepCloneQuery,
+         });
+      } catch (error) {
+         const err = error as HttpErrors;
+         res.status(err?.status || 500).json(err.message);
+      }
+   }
+
    public async reportForm(req: Request, res: Response) {
       try {
          const reportQuery = req.query;

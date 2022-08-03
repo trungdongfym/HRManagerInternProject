@@ -63,13 +63,5 @@ export const getAssociationObject = (
    return res as IFormStore;
 };
 
-export const belongToFormStoreAttrArray = Object.values(
-   getAssociationObject(FormStoreAssociation.formBelongsToFormStore)
-);
-
-export const hasManyFormAttrArray = Object.values(
-   getAssociationObject(FormStoreAssociation.formStorehasManyForm)
-);
-
 export * from './anualReviewForms/anualForm.model';
 export * from './probationaryForm/probForm.model';

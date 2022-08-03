@@ -1,5 +1,5 @@
-import { FindOptions, Includeable, Sequelize } from 'sequelize';
-import { IReportQueryParams, ITokenPayload } from '../../../commons/interfaces';
+import { FindOptions, Includeable, Op, Sequelize } from 'sequelize';
+import { IFormStoreQueryParams, IReportQueryParams, ITokenPayload } from '../../../commons/interfaces';
 import { db } from '../../../configs/database';
 import { FormLib } from '../../../libs/database/mysql';
 import HttpErrors from '../../../libs/error/httpErrors';
@@ -164,6 +164,81 @@ class FormService {
          }
          const formStoreUpdated = await formStoreUpdate.save();
          return formStoreUpdated;
+      } catch (error) {
+         throw error;
+      }
+   }
+
+   public async getFormStore(formStoreQuery: IFormStoreQueryParams, actor: ITokenPayload) {
+      try {
+         const { search, filter, page, pageSize, sort } = formStoreQuery;
+         if (filter && filter?.status === FormStoreStatusEnum.private) {
+            if (rolesRankMap[actor.role] < rolesRankMap[RolesEnum.Drirector]) {
+               // Only owner of form or rank of role > Drirector is pass
+               if (filter.createrID && actor.userID !== filter.createrID) {
+                  throw HttpErrors.Forbiden(`you don't have access to other form with status private!`);
+               }
+            }
+         }
+         const findOptions: FindOptions = {};
+
+         if (filter) {
+            findOptions.where = filter;
+         }
+
+         /*
+         If the query filter don't have status attribute  and rank of role < Drirector 
+         then only get formstore with status is public or formstore private his own
+         */
+         if (!filter?.status && rolesRankMap[actor.role] < rolesRankMap[RolesEnum.Drirector]) {
+            findOptions.where = {
+               ...findOptions.where,
+               [Op.or]: [{ createrID: actor.userID }, { status: FormStoreStatusEnum.public }],
+            };
+         }
+
+         let isPagination = false;
+         let isSkipDB = false; // Check formstore is skip and limit by DB
+         if (checkFieldContaint(formStoreQuery, ['page', 'pageSize'])) {
+            isPagination = true;
+         }
+         // If the queryparam have filter and search and offset and skip => wrong result
+         if (isPagination && !filter && !search) {
+            findOptions.offset = page * pageSize;
+            findOptions.limit = pageSize;
+            isSkipDB = true;
+         }
+
+         if (search) {
+            findOptions.where = {
+               ...findOptions.where,
+               [Op.and]: [
+                  Sequelize.literal(
+                     `MATCH(${search.field.join(',')}) AGAINST('${search.value.split(/\s+/).join(',')}')`
+                  ),
+               ],
+            };
+         }
+
+         if (sort) {
+            findOptions.order = [[Sequelize.literal(`${sort.field.join(',')}`), sort.type]];
+         }
+
+         interface userPaginationType {
+            rows: db.FormStore[];
+            count: number;
+         }
+         let formStores: db.FormStore[] | userPaginationType;
+         if (isPagination) {
+            formStores = await db.FormStore.findAndCountAll(findOptions);
+            if (isPagination && !isSkipDB) {
+               // limit and skip hand made :v, củ chuối
+               formStores.rows = formStores.rows.slice(page * pageSize, pageSize * page + pageSize);
+            }
+         } else {
+            formStores = await db.FormStore.findAll(findOptions);
+         }
+         return formStores;
       } catch (error) {
          throw error;
       }
