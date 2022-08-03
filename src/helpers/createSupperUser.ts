@@ -1,11 +1,11 @@
-import { User } from '../apis/users/users.model';
+import { User } from '../apis/v1/users/users.model';
 import UserDB from '../libs/database/mysql/user.lib';
 import { RolesEnum } from '../models/roles.model';
 import testSendMail from './testSendMail';
 
 async function createUserAdmin() {
    const newAdmin: User = {
-      staffCode: 'Admin02',
+      staffCode: 'Admin',
       email: 'admin@gmail.com',
       firstName: 'Le Trung',
       lastName: 'Dong',

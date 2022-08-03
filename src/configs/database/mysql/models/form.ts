@@ -1,36 +1,39 @@
 import { DataTypes, Model } from 'sequelize';
-import { IForm } from '../../../../apis/forms/forms.model';
-import { FormStatusArray, FormStatusEnum } from '../../../../models/form.model';
+import { IForm } from '../../../../apis/v1/forms/forms.model';
+import { formAssociations, FormStatusArray, FormStatusEnum } from '../../../../models/form.model';
 import { sequelize } from '../mysql.config';
 import User from './user';
 
 class Form extends Model implements IForm {
    declare formID: string;
    declare formCode: string;
-   declare title: string;
    declare status: FormStatusEnum;
    declare numReject?: number;
    declare sendTime: string | Date;
    declare ownerID: string;
    declare reviewerID: string;
-   declare createrID?: string;
    declare updatedAt?: string;
 
    static associate() {
-      User.associations['Owner'] = User.hasMany(Form, {
+      Form.associations['Owner'] = User.hasMany(Form, {
          foreignKey: 'ownerID',
-         onDelete: 'SET NULL',
+         onDelete: 'CASCADE',
          as: 'owner',
       });
-      User.associations['Reviewer'] = User.hasMany(Form, {
+      Form.associations['Reviewer'] = User.hasMany(Form, {
          foreignKey: 'reviewerID',
-         onDelete: 'SET NULL',
+         onDelete: 'CASCADE',
          as: 'reviewer',
       });
-      User.associations['Creater'] = User.hasMany(Form, {
-         foreignKey: 'createrID',
-         onDelete: 'SET NULL',
-         as: 'creater',
+      Form.associations[formAssociations.formBelongsToOwner] = Form.belongsTo(User, {
+         foreignKey: 'ownerID',
+         onDelete: 'CASCADE',
+         as: formAssociations.formBelongsToOwner,
+      });
+      Form.associations[formAssociations.formBelongsToReviewer] = Form.belongsTo(User, {
+         foreignKey: 'reviewerID',
+         onDelete: 'CASCADE',
+         as: formAssociations.formBelongsToReviewer,
       });
    }
 }
@@ -44,10 +47,6 @@ Form.init(
       },
       formCode: {
          type: DataTypes.STRING(30),
-         allowNull: false,
-      },
-      title: {
-         type: DataTypes.STRING,
          allowNull: false,
       },
       status: {
@@ -65,6 +64,10 @@ Form.init(
       sendTime: {
          type: DataTypes.DATE,
          allowNull: true,
+      },
+      ownerID: {
+         type: DataTypes.UUID,
+         allowNull: false,
       },
    },
    {

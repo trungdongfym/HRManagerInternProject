@@ -1,28 +1,41 @@
-import { CustomRouter } from '../../../libs/router/customRouter';
-import Validate from '../../../middlewares/validate.middleware';
-import { rolesArray, RolesEnum } from '../../../models/roles.model';
+import { CustomRouter } from '../../../../libs/router/customRouter';
+import Validate from '../../../../middlewares/validate.middleware';
+import { rolesArray, RolesEnum } from '../../../../models/roles.model';
 import AnualFormController from './anualForm.controller';
 import AnualFormValidate from './anualForm.validate';
 
 const anualFromCtrl = new AnualFormController();
 
 CustomRouter.post(
-   '/anualReviewForms',
+   '/annualReviewForms',
    [Validate.validateBody(AnualFormValidate.createFormToAllSchema), anualFromCtrl.createAll],
    { preventRoles: [RolesEnum.Employee, RolesEnum.Manager] }
 );
 
 CustomRouter.patch(
-   '/anualReviewForms/:formCode',
+   '/annualReviewForms/:formCode',
    [Validate.validateBody(AnualFormValidate.updateFormToAllSchema), anualFromCtrl.updateAll],
    { preventRoles: [RolesEnum.Employee, RolesEnum.Manager] }
 );
 
 CustomRouter.patch(
-   '/anualReviewForm/:formID',
+   '/annualReviewForm/:formID',
    [Validate.validateBody(AnualFormValidate.updateFormSchema), anualFromCtrl.updateOne],
    {
       roles: rolesArray,
    }
 );
-export default 'anualReviewForms';
+
+CustomRouter.get(
+   '/annualReviewForms',
+   [Validate.validateQueryParams(AnualFormValidate.queryFormSchema), anualFromCtrl.getForms],
+   {
+      roles: rolesArray,
+   }
+);
+
+CustomRouter.get('/annualReviewForm', [anualFromCtrl.getForm], {
+   roles: rolesArray,
+});
+
+export default 'annualReviewForms';

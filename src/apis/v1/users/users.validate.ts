@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
-import Regex from '../../commons/constants/regex.const';
-import { IAdminQueryUserParams, IUserQueryParams } from '../../commons/interfaces';
-import { rolesArray, RolesEnum } from '../../models/roles.model';
+import Regex from '../../../commons/constants/regex.const';
+import { IAdminQueryUserParams, IUserQueryParams } from '../../../commons/interfaces';
+import { rolesArray, RolesEnum } from '../../../models/roles.model';
 import { User } from './users.model';
 
 class UserValidate {
@@ -73,6 +73,9 @@ class UserValidate {
             ),
          }),
          requireManager: Joi.boolean(),
+         roles: Joi.array()
+            .items(Joi.valid(...rolesArray))
+            .min(1),
       })
       .and('page', 'pageSize');
 

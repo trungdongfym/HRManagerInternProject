@@ -1,5 +1,5 @@
 import { BelongsTo, DataTypes } from 'sequelize';
-import { IProbationaryForm } from '../../../../apis/forms/forms.model';
+import { IProbationaryForm } from '../../../../apis/v1/forms/forms.model';
 import { FormTypeEnum } from '../../../../models/form.model';
 import { rolesArray, RolesEnum } from '../../../../models/roles.model';
 import { sequelize } from '../mysql.config';
@@ -36,15 +36,12 @@ ProbationaryForm.init(
       },
       durationTime: {
          type: DataTypes.INTEGER.UNSIGNED,
-         allowNull: false,
       },
       startTime: {
          type: DataTypes.DATE,
-         allowNull: false,
       },
       position: {
          type: DataTypes.ENUM(...rolesArray),
-         allowNull: false,
       },
       comments: {
          type: DataTypes.STRING,
