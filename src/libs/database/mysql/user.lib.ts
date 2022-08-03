@@ -13,6 +13,7 @@ import HttpErrors from '../../error/httpErrors';
 import { StatusCodes } from 'http-status-codes';
 import CodeError from '../../error/codeErrors';
 import { IFindAndUpdateByIdOptions } from '../../../commons/interfaces';
+import { pickField } from '../../../utils/object.utils';
 
 class UserDB {
    // Options general use for find method
@@ -204,29 +205,34 @@ class UserDB {
    public static async checkUserUnique(user: User, userID?: string) {
       const errorMessage: any = {};
       const { email, staffCode, cmnd } = user;
-      // Check field unique is exists
-      const userEmailExist = email && (await UserDB.findOneByAnyField({ email: email }));
-      const userStaffCodeExist = staffCode && (await UserDB.findOneByAnyField({ staffCode: staffCode }));
-      const userCmnd = cmnd && (await UserDB.findOneByAnyField({ cmnd: cmnd }));
-      if (userEmailExist) {
-         if (userID && userID !== userEmailExist.userID) {
-            errorMessage.email = 'Email is exist';
+      const uniqueField = ['email', 'staffCode', 'cmnd'];
+      try {
+         // Check field unique is exists
+         const userUniqueField = pickField(user, uniqueField);
+         const users = await db.User.findAll({ where: userUniqueField });
+         for (const user of users) {
+            if (user.userID !== userID) {
+               if (email && email === user.email) {
+                  errorMessage['email'] = 'Email is exists!';
+               }
+               if (staffCode && staffCode === user.staffCode) {
+                  errorMessage['staffCode'] = 'StaffCode is exists!';
+               }
+               if (cmnd && cmnd === user.cmnd) {
+                  errorMessage['cmnd'] = 'Cmnd is exists!';
+               }
+            }
+            if (Object.keys(errorMessage).length === uniqueField.length) {
+               return errorMessage;
+            }
          }
-      }
-      if (userStaffCodeExist) {
-         if (userID && userID !== userStaffCodeExist.userID) {
-            errorMessage.staffCode = 'staffCode is exist';
+         if (Object.keys(errorMessage).length > 0) {
+            return errorMessage;
          }
-      }
-      if (userCmnd) {
-         if (userID && userID !== userCmnd.userID) {
-            errorMessage.userCmnd = 'cmnd is exist';
-         }
-      }
-      if (Object.keys(errorMessage).length === 0) {
          return null;
+      } catch (error) {
+         throw error;
       }
-      return errorMessage;
    }
 }
 

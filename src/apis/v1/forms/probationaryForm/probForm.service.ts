@@ -1,8 +1,10 @@
 import { FindOptions, Op, Sequelize } from 'sequelize';
 import { IFormQueryParams, ITokenPayload } from '../../../../commons/interfaces';
+import { ISendMail } from '../../../../commons/interfaces/sendMail';
 import { db } from '../../../../configs/database';
 import { FormLib, UserDB } from '../../../../libs/database/mysql';
 import HttpErrors from '../../../../libs/error/httpErrors';
+import { sendMail } from '../../../../libs/notify/sendMail.lib';
 import {
    FormScope,
    FormStoreAssociation,
@@ -43,9 +45,10 @@ class ProbFormService {
             },
             raw: true,
          });
-
+         const mailArray: string[] = [];
          const bulkProbForm = users.map((user) => {
-            const { userID } = user;
+            const { userID, email } = user;
+            mailArray.push(email);
             const cloneForm = JSON.parse(JSON.stringify(probFormData));
             cloneForm.ownerID = userID;
             return cloneForm;
@@ -53,6 +56,15 @@ class ProbFormService {
          const probFormCreated = await FormLib.bulkCreate(bulkProbForm, FormTypeEnum.ProbationaryForm);
          // Change status form store
          formStore.status = FormStoreStatusEnum.public;
+         const sendMailPayload: ISendMail = {
+            from: actor.email,
+            subject: `Đánh giá định kỳ hàng năm`,
+            to: mailArray,
+            text: 'Mẫu đánh giá định kì hàng năm đã được tạo, mọi người vào hệ thống để hoàn thành nhé!',
+         };
+         sendMail(sendMailPayload).catch((err) => {
+            console.log(err?.message || 'Error send mail!');
+         });
          await formStore.save();
          return probFormCreated;
       } catch (error) {

@@ -270,6 +270,7 @@ class FormService {
             // add attribute for filter
             findOptions.attributes = [...(findOptions.attributes as any), ...Object.keys(filterAttribute)];
          }
+
          if (isFilterFormType) {
             findOptions.include = [
                {
@@ -279,6 +280,7 @@ class FormService {
                },
             ];
          }
+
          let includeAttribute: Includeable[] = null;
          if (detailsField) {
             // Create include attribute for include association
@@ -300,6 +302,7 @@ class FormService {
                },
             ],
          });
+
          if (detailsField) {
             const resultDetail = result.map(async (value) => {
                const { status } = value;

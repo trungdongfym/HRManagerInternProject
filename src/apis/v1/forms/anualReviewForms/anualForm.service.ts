@@ -1,8 +1,10 @@
 import { FindOptions, Op, Sequelize } from 'sequelize';
 import { IFormQueryParams, ITokenPayload } from '../../../../commons/interfaces';
+import { ISendMail } from '../../../../commons/interfaces/sendMail';
 import { db } from '../../../../configs/database';
 import { FormLib, UserDB } from '../../../../libs/database/mysql';
 import HttpErrors from '../../../../libs/error/httpErrors';
+import { sendMail } from '../../../../libs/notify/sendMail.lib';
 import {
    FormScope,
    FormStoreAssociation,
@@ -27,6 +29,7 @@ class AnualFormService {
          if (formStore.formType !== FormTypeEnum.AnnualReviewForm) {
             throw HttpErrors.BadRequest('FormType invalid!');
          }
+
          if (formStore.status === FormStoreStatusEnum.public) {
             throw HttpErrors.BadRequest('FormStore is published!');
          }
@@ -44,15 +47,28 @@ class AnualFormService {
             raw: true,
          });
 
+         const mailArray: string[] = [];
          const bulkAnualForm = users.map((user) => {
-            const { userID } = user;
+            const { userID, email } = user;
+            mailArray.push(email);
             const cloneForm = JSON.parse(JSON.stringify(anualFormData));
             cloneForm.ownerID = userID;
             return cloneForm;
          });
+
          const anualFormCreated = await FormLib.bulkCreate(bulkAnualForm, FormTypeEnum.AnnualReviewForm);
          // Change status form store
          formStore.status = FormStoreStatusEnum.public;
+
+         const sendMailPayload: ISendMail = {
+            from: actor.email,
+            subject: `Đánh giá định kỳ hàng năm`,
+            to: mailArray,
+            text: 'Mẫu đánh giá định kì hàng năm đã được tạo, mọi người vào hệ thống để hoàn thành nhé!',
+         };
+         sendMail(sendMailPayload).catch((err) => {
+            console.log(err?.message || 'Error send mail!');
+         });
          await formStore.save();
          return anualFormCreated;
       } catch (error) {
@@ -112,7 +128,6 @@ class AnualFormService {
    // get forms
    public async getAnnualForms(queryParams: IFormQueryParams<IAnnualReviewForm>, actor: ITokenPayload) {
       const { filter, page, pageSize, search, sort } = queryParams;
-
       // Only admin, drirector, HR or Actor is owner of form is pass
       if (actor.role === RolesEnum.Manager || actor.role === RolesEnum.Employee) {
          if (!filter?.ownerID) {

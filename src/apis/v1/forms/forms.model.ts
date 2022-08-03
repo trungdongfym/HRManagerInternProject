@@ -42,6 +42,13 @@ export const formStoreObject: Required<IFormStore> = {
 };
 
 // To get object have value refer to include association
+/**
+ *
+ * @param association FormStoreAssociation
+ * @param include include attribute
+ * @param exclude exclude attribute
+ * @returns {object} An object have value access to an association table
+ */
 export const getAssociationObject = (
    association: FormStoreAssociation,
    include?: Array<keyof typeof formStoreObject>,

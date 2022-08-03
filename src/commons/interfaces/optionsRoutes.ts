@@ -1,4 +1,4 @@
-import { PermissionEnum, RolesEnum } from '../../models/roles.model';
+import { RolesEnum } from '../../models/roles.model';
 
 export interface OptionsRoutes {
    roles?: Array<RolesEnum>;

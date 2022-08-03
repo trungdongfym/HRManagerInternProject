@@ -13,6 +13,7 @@ class S3Lib {
          Body: fileStream,
          Key: file.filename,
          ACL: 'public-read',
+         ContentType: file.mimetype,
       };
       const uploadParams: PutObjectRequest = {
          ...defaultUploadParams,
