@@ -1,5 +1,5 @@
 import { db } from '../../../configs/database';
-import { User } from '../../../apis/users/users.model';
+import { User } from '../../../apis/v1/users/users.model';
 import {
    ValidationError,
    SaveOptions,
@@ -208,7 +208,6 @@ class UserDB {
       const userEmailExist = email && (await UserDB.findOneByAnyField({ email: email }));
       const userStaffCodeExist = staffCode && (await UserDB.findOneByAnyField({ staffCode: staffCode }));
       const userCmnd = cmnd && (await UserDB.findOneByAnyField({ cmnd: cmnd }));
-
       if (userEmailExist) {
          if (userID && userID !== userEmailExist.userID) {
             errorMessage.email = 'Email is exist';

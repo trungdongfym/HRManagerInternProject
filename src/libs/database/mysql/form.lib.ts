@@ -1,5 +1,5 @@
 import { FindOptions } from 'sequelize';
-import { IAnnualReviewForm } from '../../../apis/forms/forms.model';
+import { IAnnualReviewForm } from '../../../apis/v1/forms/forms.model';
 import { db } from '../../../configs/database';
 import { sequelize } from '../../../configs/database/mysql/mysql.config';
 import HttpErrors from '../../../libs/error/httpErrors';
@@ -29,7 +29,6 @@ class FormLib {
       const t = await sequelize.transaction({ logging: false });
       try {
          const formCreated = await db.Form.bulkCreate(formParams, {
-            logging: false,
             include: [
                {
                   association: db.Form.associations[formType],
@@ -80,6 +79,7 @@ class FormLib {
          }
          form.changed('updatedAt', true);
          const formUpdated = await form.save();
+         await (formUpdated[formType] as any).save();
          return formUpdated;
       } catch (error) {
          const err = HttpErrors.IODataBase(error?.message || 'Update Form Error!');
@@ -140,7 +140,7 @@ class FormLib {
             }
             anualForm.changed('updatedAt', true);
             await anualForm.save({ transaction: transaction, logging: false });
-            await (anualForm[formType] as db.AnnualReviewForm).save({
+            await (anualForm[formType] as any).save({
                transaction: transaction,
                logging: false,
             });

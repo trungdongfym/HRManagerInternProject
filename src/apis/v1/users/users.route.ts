@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import { CustomRouter } from '../../libs/router/customRouter';
-import Auth from '../../middlewares/auth.middleware';
-import Upload from '../../middlewares/upload.middleware';
-import Validate from '../../middlewares/validate.middleware';
-import { rolesArray, RolesEnum } from '../../models/roles.model';
+import { CustomRouter } from '../../../libs/router/customRouter';
+import Auth from '../../../middlewares/auth.middleware';
+import Upload from '../../../middlewares/upload.middleware';
+import Validate from '../../../middlewares/validate.middleware';
+import { rolesArray, RolesEnum } from '../../../models/roles.model';
 import UserController from './users.controller';
 import UserValidate from './users.validate';
 
