@@ -21,8 +21,8 @@ class AnualFormController {
          const { formCode } = req.params;
          const { user } = req as any;
          const formRaw = req.body;
-         const formCreated = await anualFormSv.updateToAllUser(formCode, formRaw, user);
-         res.json(formCreated);
+         const formUpdated = await anualFormSv.updateToAllUser(formCode, formRaw, user);
+         res.json(formUpdated);
       } catch (error) {
          const err = error as HttpErrors;
          res.status(err?.status || 500).json(err.message);

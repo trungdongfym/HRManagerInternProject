@@ -40,6 +40,7 @@ class FormLib {
          await t.commit();
          return formCreated;
       } catch (error) {
+         console.log(error);
          await t.rollback();
          const err = HttpErrors.IODataBase(error?.message || 'Create Form Error!');
          throw err;

@@ -29,7 +29,7 @@ class AnualFormValidate {
    public static queryFormSchema: Joi.ObjectSchema<IFormQueryParams<IAnnualReviewForm>> = Joi.object()
       .keys({
          search: Joi.object().keys({
-            field: Joi.array().items(Joi.valid(formStoreObject.title)).min(1),
+            field: Joi.array().items(Joi.valid(formStoreObject.title)).min(1).required(),
             value: Joi.string().required(),
          }),
          filter: Joi.object().keys({
