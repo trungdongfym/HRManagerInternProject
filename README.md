@@ -57,6 +57,9 @@ Employee
 *  approve: Quản lý phê duyệt form đánh giá
 
 Class Diagram
+
 ![Alt text](./public/class_diagram.png?raw=true 'class_diagram')
+
 Entity Relationship Diagram
+
 ![Alt text](./public/entity_relationship_diagram.png?raw=true 'entity_relationship_diagram')
