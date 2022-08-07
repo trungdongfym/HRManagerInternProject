@@ -1,6 +1,6 @@
 import { DataTypes, Model, Op, Sequelize } from 'sequelize';
 import { User as IUser } from '../../../../apis/v1/users/users.model';
-import { bcryptHashSync } from '../../../../libs/hash/bscrypt.lib';
+import BscyptLib from '../../../../libs/hash/bscrypt.lib';
 import { rolesArray, RolesEnum } from '../../../../models/roles.model';
 import AppConfig from '../../../app.config';
 import { sequelize } from '../mysql.config';
@@ -86,7 +86,7 @@ User.init(
       password: {
          type: DataTypes.STRING,
          set(password: string) {
-            this.setDataValue('password', bcryptHashSync(password));
+            this.setDataValue('password', BscyptLib.bcryptHashSync(password));
          },
       },
       role: {

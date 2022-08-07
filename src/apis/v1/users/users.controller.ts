@@ -39,29 +39,25 @@ class UserController {
       const userAccount: IUserAccount = req.body;
       try {
          const loginData = await userService.UserLogin(userAccount);
-         res.json({
-            status: true,
-            data: loginData,
-         });
+         res.json(loginData);
       } catch (error) {
          res.status(error?.status || 500).json(error?.message || 'Unknow error!');
       }
    }
 
    public async logoutUser(req: Request, res: Response) {
-      const { userID } = req.params;
       try {
-         if (!userID) {
-            throw HttpErrors.NotFound('User not exists!');
-         }
-         const result = await userService.UserLogout(userID);
-         if (!result) {
-            throw HttpErrors.ServerError('Token not exists!');
-         }
-         res.json({
+         const { user } = req as any;
+         const result = await userService.UserLogout(user);
+         const resultLogout = {
             status: true,
-            data: result,
-         });
+            message: 'Logout successfully',
+         };
+         if (!result) {
+            resultLogout.status = false;
+            resultLogout.message = 'Logout failure';
+         }
+         res.json(resultLogout);
       } catch (error) {
          res.status(error?.status || 500).json(error?.message || 'Unknow error!');
       }

@@ -8,6 +8,7 @@ const redisConnectOptions: RedisClientOptions = {
       host: redisConfig.host,
       port: redisConfig.port,
    },
+   database: redisConfig.dbNumber,
 };
 
 if (redisConfig.username && redisConfig.password) {

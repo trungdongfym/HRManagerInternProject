@@ -35,13 +35,15 @@ class FormValidate {
          formCode: Joi.string(),
          formType: Joi.string().valid(...FormTypeArray),
       }),
-      detailsField: Joi.array().items(
-         Joi.valid(
-            formAssociations.formBelongsToOwner,
-            formAssociations.formBelongsToReviewer,
-            formAssociations.formBelongsToFormStore
+      detailsField: Joi.array()
+         .items(
+            Joi.valid(
+               formAssociations.formBelongsToOwner,
+               formAssociations.formBelongsToReviewer,
+               formAssociations.formBelongsToFormStore
+            )
          )
-      ),
+         .unique(),
    });
 
    public static queryFormStoreSchema: Joi.ObjectSchema<IFormStoreQueryParams> = Joi.object()

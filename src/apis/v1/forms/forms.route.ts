@@ -14,7 +14,7 @@ CustomRouter.patch(
    }
 );
 
-CustomRouter.delete('/forms/:formCode', [formCtrl.deleteForms], {
+CustomRouter.delete('/formStore/:formCode', [formCtrl.deleteForms], {
    roles: rolesArray,
    preventRoles: [RolesEnum.Employee],
 });
