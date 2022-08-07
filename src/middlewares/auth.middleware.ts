@@ -1,7 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import { User } from '../apis/v1/users/users.model';
 import { ITokenPayload } from '../commons/interfaces';
-import { decodeToken, getToken, verifyToken } from '../libs/authentication/token.lib';
+import TokenLib from '../libs/authentication/token.lib';
 import { RedisLib } from '../libs/database/redis';
 import HttpErrors from '../libs/error/httpErrors';
 import TypeErrors from '../libs/error/typeError';
@@ -17,10 +17,10 @@ class Auth {
     */
    public static verifyRoles(roles?: Array<string>, preventRoles?: Array<string>): RequestHandler {
       return (req: Request, res: Response, next: NextFunction) => {
-         const accessToken = getToken(req);
+         const accessToken = TokenLib.getToken(req);
          const { token } = accessToken;
          try {
-            const payloadToken = verifyToken(tokenEnum.ACCESS_TOKEN, token);
+            const payloadToken = TokenLib.verifyToken(tokenEnum.ACCESS_TOKEN, token);
 
             // Attach real user to req for next use
             (req as any).user = payloadToken;
@@ -56,6 +56,7 @@ class Auth {
             res.status(badRequest.status).json(badRequest.message);
             return;
          }
+
          const { user } = req as any;
          try {
             if (!user) {
@@ -69,11 +70,13 @@ class Auth {
                next();
                return;
             }
+
             if (prsonalPrivacyID !== userID) {
                const notPermissionErr = HttpErrors.Forbiden('Not permission!');
                next(notPermissionErr);
                return;
             }
+
             next();
          } catch (error) {
             next(error);
@@ -84,7 +87,7 @@ class Auth {
    // Check access token is valid
    public static async verifyAccessToken(req: Request, res: Response, next: NextFunction) {
       try {
-         const accessToken = getToken(req);
+         const accessToken = TokenLib.getToken(req);
          // Check token exists
          if (!accessToken) {
             const notPermissionErr = HttpErrors.Unauthorized('Unauthorized!');
@@ -97,7 +100,7 @@ class Auth {
             res.status(tokenErr.status).json(tokenErr.message);
             return;
          }
-         const payloadDecode: ITokenPayload = decodeToken(token);
+         const payloadDecode: ITokenPayload = TokenLib.decodeToken(token);
          const userID = payloadDecode.userID;
          const unAuthorized = HttpErrors.Unauthorized('Invalid Token', TypeErrors.TOKEN_ERROR);
 

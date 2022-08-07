@@ -15,6 +15,7 @@ export interface AppEnv {
          port: number;
          username?: string;
          password?: string;
+         dbNumber: number;
       };
    };
    SECURITY?: {

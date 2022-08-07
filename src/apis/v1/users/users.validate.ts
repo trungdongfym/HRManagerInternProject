@@ -54,8 +54,6 @@ class UserValidate {
       .keys({
          user: Joi.object().keys({
             staffCode: Joi.string().trim(),
-            firstName: Joi.string().trim(),
-            lastName: Joi.string().trim(),
             email: Joi.string()
                .trim()
                .email({ tlds: { allow: false } }),

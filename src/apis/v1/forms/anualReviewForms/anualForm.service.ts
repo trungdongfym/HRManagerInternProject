@@ -62,13 +62,14 @@ class AnualFormService {
 
          const sendMailPayload: ISendMail = {
             from: actor.email,
-            subject: `Đánh giá định kỳ hàng năm`,
+            subject: `Annual review form`,
             to: mailArray,
-            text: 'Mẫu đánh giá định kì hàng năm đã được tạo, mọi người vào hệ thống để hoàn thành nhé!',
+            text: 'The annual review form has been created, everyone, please enter the system to complete it!',
          };
          sendMail(sendMailPayload).catch((err) => {
             console.log(err?.message || 'Error send mail!');
          });
+
          await formStore.save();
          return anualFormCreated;
       } catch (error) {
@@ -78,16 +79,20 @@ class AnualFormService {
 
    public async updateToAllUser(formCode: string, formRaw: any, userActor: ITokenPayload) {
       const anualFormData = anualFormDataFactory(formRaw);
+
       try {
          const formStore = await db.FormStore.findOne({ where: { formCode: formCode } });
          if (!formStore) {
             throw HttpErrors.NotFound('Not Found formCode!');
          }
-         if (rolesRankMap[userActor.role] > rolesRankMap[RolesEnum.Drirector]) {
+
+         // rank role > rank Drirector is pass
+         if (rolesRankMap[userActor.role] >= rolesRankMap[RolesEnum.Drirector]) {
             formStore.createrID = userActor.userID;
          } else if (formStore.createrID !== userActor.userID) {
             throw HttpErrors.Forbiden('Not Permission!');
          }
+
          const formUpdated = await FormLib.findAndUpdate(
             { formCode: formCode },
             anualFormData,
@@ -127,36 +132,41 @@ class AnualFormService {
 
    // get forms
    public async getAnnualForms(queryParams: IFormQueryParams<IAnnualReviewForm>, actor: ITokenPayload) {
-      const { filter, page, pageSize, search, sort } = queryParams;
+      const { filter = {}, page, pageSize, search, sort } = queryParams;
       // Only admin, drirector, HR or Actor is owner of form is pass
       if (actor.role === RolesEnum.Manager || actor.role === RolesEnum.Employee) {
          if (!filter?.ownerID) {
-            throw HttpErrors.Forbiden(`You don't have permission to get this resource!`);
+            filter.ownerID = actor.userID;
          } else {
             if (filter.ownerID !== actor.userID) {
                throw HttpErrors.Forbiden(`You don't have permission to get this resource!`);
             }
          }
       }
+
       const findOptions: FindOptions = {
          raw: true,
       };
+
       try {
          let isPagination = false;
          let isSkipDB = false;
          if (checkFieldContaint(queryParams, ['page', 'pageSize'])) {
             isPagination = true;
          }
-         if (isPagination && !search && !filter) {
+
+         if (isPagination && !search && Object.keys(filter).length > 0) {
             findOptions.offset = pageSize * page;
             findOptions.limit = pageSize;
             isSkipDB = true;
          }
+
          if (filter) {
             // generate for nested object in include association
             const filterApply = filterAnualFormFactory(filter);
             findOptions.where = filterApply as any;
          }
+
          if (search) {
             const associateFormStoreObject = getAssociationObject(
                FormStoreAssociation.formBelongsToFormStore
@@ -169,6 +179,7 @@ class AnualFormService {
                }
                return `form.${val}`;
             });
+
             findOptions.where = {
                ...findOptions.where,
                [Op.and]: [
@@ -178,9 +189,11 @@ class AnualFormService {
                ],
             };
          }
+
          if (sort) {
             findOptions.order = [Sequelize.literal(`${sort.field.join(',')} ${sort.type}`)];
          }
+
          interface userPaginationType {
             rows: db.Form[];
             count: number;
@@ -195,6 +208,7 @@ class AnualFormService {
          } else {
             annualForms = await db.Form.scope(FormScope.populateAnnualForm).findAll(findOptions);
          }
+
          return annualForms;
       } catch (error) {
          throw error;

@@ -1,17 +1,17 @@
 import { ManagedUpload } from 'aws-sdk/clients/s3';
 import { StatusCodes } from 'http-status-codes';
 import { FindOptions, Op, Sequelize } from 'sequelize';
-import { IAdminQueryUserParams, IUserQueryParams } from '../../../commons/interfaces';
+import { IAdminQueryUserParams, ITokenPayload, IUserQueryParams } from '../../../commons/interfaces';
 import AppConfig from '../../../configs/app.config';
 import { db } from '../../../configs/database';
-import { signToken } from '../../../libs/authentication/token.lib';
+import TokenLib from '../../../libs/authentication/token.lib';
 import { S3Lib } from '../../../libs/aws';
 import { UserDB } from '../../../libs/database/mysql';
 import { RedisLib } from '../../../libs/database/redis';
 import CodeError from '../../../libs/error/codeErrors';
 import HttpErrors from '../../../libs/error/httpErrors';
 import FileLib from '../../../libs/fileHandle/file.lib';
-import { bcryptCompare } from '../../../libs/hash/bscrypt.lib';
+import BcryptLib from '../../../libs/hash/bscrypt.lib';
 import { RolesEnum } from '../../../models/roles.model';
 import { tokenEnum } from '../../../models/token.model';
 import { userProtectFieldArray } from '../../../models/user.model';
@@ -28,31 +28,29 @@ class UserService {
          if (errorMessage) {
             throw HttpErrors.Conflict(JSON.stringify(errorMessage));
          }
+
          if (fileAvatar) {
             resUploadS3 = await S3Lib.uploadFile(fileAvatar);
             user.avatar = resUploadS3.Key; //save key s3 to DB
          }
+
          const userCreated = await UserDB.createOne(user);
          if (!userCreated) {
             throw HttpErrors.IODataBase('Server Internal Error!');
          }
+
          if (fileAvatar) {
-            FileLib.removeFile(fileAvatar.path).catch((err) => {
-               console.log(err);
-            });
+            FileLib.removeFile(fileAvatar.path).catch((err) => {});
          }
+
          return userCreated;
       } catch (error) {
          // create fail then reset
          if (fileAvatar) {
-            FileLib.removeFile(fileAvatar.path).catch((err) => {
-               console.log(err);
-            });
+            FileLib.removeFile(fileAvatar.path).catch((err) => {});
          }
          if (resUploadS3) {
-            S3Lib.deleteFile(resUploadS3.Key).catch((err) => {
-               console.log(err);
-            });
+            S3Lib.deleteFile(resUploadS3.Key).catch((err) => {});
          }
          throw error;
       }
@@ -67,20 +65,24 @@ class UserService {
          if (role !== RolesEnum.Admin && checkFieldContaint(userUpdate, userProtectFieldArray)) {
             throw HttpErrors.Forbiden(CodeError.BasicError[StatusCodes.FORBIDDEN]);
          }
+
          if (Object.hasOwn(userUpdate, 'managerID')) {
             // Convert to null if managerID = '' or undefined
             if (!userUpdate.managerID && userUpdate.managerID === '') {
                userUpdate.managerID = null;
             }
          }
+
          const errorMessage = await UserDB.checkUserUnique(userUpdate, userID);
          if (errorMessage) {
             throw HttpErrors.Conflict(JSON.stringify(errorMessage));
          }
+
          if (fileAvatar) {
             resUploadS3 = await S3Lib.uploadFile(fileAvatar);
             userUpdate.avatar = resUploadS3.Key; //save key s3 to DB
          }
+
          const oldRecord = await UserDB.findAndupdateByID(userUpdate, {
             newDocs: false,
             where: {
@@ -89,28 +91,20 @@ class UserService {
          });
          // Remove file local
          if (fileAvatar) {
-            FileLib.removeFile(fileAvatar.path).catch((err) => {
-               console.log(err);
-            });
+            FileLib.removeFile(fileAvatar.path).catch((err) => {});
          }
          // Delete old file
          if (resUploadS3) {
-            S3Lib.deleteFile(oldRecord.getDataValue('avatar') as string).catch((err) => {
-               console.log(err);
-            });
+            S3Lib.deleteFile(oldRecord.getDataValue('avatar') as string).catch((err) => {});
          }
          const newRecord = await UserDB.findById(userID, { logging: false });
          return newRecord;
       } catch (error) {
          if (fileAvatar) {
-            FileLib.removeFile(fileAvatar.path).catch((err) => {
-               console.log(err);
-            });
+            FileLib.removeFile(fileAvatar.path).catch((err) => {});
          }
          if (resUploadS3) {
-            S3Lib.deleteFile(resUploadS3.Key).catch((err) => {
-               console.log(err);
-            });
+            S3Lib.deleteFile(resUploadS3.Key).catch((err) => {});
          }
          throw error;
       }
@@ -120,20 +114,22 @@ class UserService {
       try {
          const { email, password } = userAccount;
          const user = await UserDB.findOneByAnyField({ email: email }, { include: null });
+
          const notFoundErr = HttpErrors.NotFound('Email or password incorrect!');
          if (!user) {
             throw notFoundErr;
          }
-         if (!(await bcryptCompare(password, user.password))) {
+
+         if (!(await BcryptLib.bcryptCompare(password, user.password))) {
             throw notFoundErr;
          }
-         const jwtConfig = AppConfig.ENV.SECURITY.JWT;
 
+         const jwtConfig = AppConfig.ENV.SECURITY.JWT;
          const oldAccessToken = await RedisLib.getAccessToken(user.userID);
          //If token is exist then don't sign and use oldAccessToken
          const accessToken = oldAccessToken
             ? oldAccessToken
-            : signToken(tokenEnum.ACCESS_TOKEN, user.toJSON());
+            : TokenLib.signToken(tokenEnum.ACCESS_TOKEN, user.toJSON());
 
          const userLoginData: IUserLoginPayload = {
             userID: user.userID,
@@ -154,6 +150,7 @@ class UserService {
                NX: true,
             });
          }
+
          return {
             accessToken: accessToken,
             user: userLoginData,
@@ -163,8 +160,9 @@ class UserService {
       }
    }
 
-   public async UserLogout(userID: string) {
+   public async UserLogout(actor: ITokenPayload) {
       try {
+         const { userID } = actor;
          const res = await RedisLib.deleteAccessToken(userID);
          return res;
       } catch (error) {

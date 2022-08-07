@@ -46,13 +46,7 @@ CustomRouter.post('/login', [Validate.validateBody(UserValidate.loginSchema), us
    requireAuth: false,
 });
 
-CustomRouter.delete('/logout/:userID', [
-   (req: Request, res: Response, next: NextFunction) => {
-      const { userID } = req.params;
-      return Auth.verifyPersonalPrivacy(userID)(req, res, next);
-   },
-   userController.logoutUser,
-]);
+CustomRouter.delete('/logout', [userController.logoutUser]);
 
 CustomRouter.get(
    '/users',
