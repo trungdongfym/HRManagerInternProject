@@ -4,6 +4,7 @@
    "description": "VMO training",
    "main": "app.js",
    "scripts": {
+      "pm2": "cross-env NODE_ENV=dev pm2 start ./src/app.ts --watch",
       "test": "cross-env NODE_ENV=test jest",
       "test:coverage": "cross-env NODE_ENV=test jest --coverage",
       "start": "cross-env NODE_ENV=dev nodemon --watch src/**/*.ts --exec ts-node ./src/app.ts",

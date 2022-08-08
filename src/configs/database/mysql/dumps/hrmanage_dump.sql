@@ -72,15 +72,7 @@ CREATE TABLE `form` (
   UNIQUE KEY `formCode_ownerID_unique_key` (`formCode`,`ownerID`),
   KEY `ownerID` (`ownerID`),
   KEY `reviewerID` (`reviewerID`),
-  CONSTRAINT `form_ibfk_10` FOREIGN KEY (`formCode`) REFERENCES `formstore` (`formCode`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_11` FOREIGN KEY (`ownerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_12` FOREIGN KEY (`reviewerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_2` FOREIGN KEY (`ownerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_3` FOREIGN KEY (`reviewerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_5` FOREIGN KEY (`ownerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_6` FOREIGN KEY (`reviewerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_8` FOREIGN KEY (`ownerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `form_ibfk_9` FOREIGN KEY (`reviewerID`) REFERENCES `user` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `form_ibfk_1` FOREIGN KEY (`formCode`) REFERENCES `formstore` (`formCode`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -114,10 +106,7 @@ CREATE TABLE `formstore` (
   PRIMARY KEY (`formCode`),
   KEY `createrID` (`createrID`),
   FULLTEXT KEY `search_formStore_title_index` (`title`),
-  CONSTRAINT `formstore_ibfk_1` FOREIGN KEY (`createrID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `formstore_ibfk_2` FOREIGN KEY (`createrID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `formstore_ibfk_3` FOREIGN KEY (`createrID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `formstore_ibfk_4` FOREIGN KEY (`createrID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `formstore_ibfk_1` FOREIGN KEY (`createrID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -198,10 +187,7 @@ CREATE TABLE `user` (
   UNIQUE KEY `cmnd_4` (`cmnd`),
   UNIQUE KEY `email_4` (`email`),
   KEY `managerID` (`managerID`),
-  CONSTRAINT `user_ibfk_1` FOREIGN KEY (`managerID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `user_ibfk_2` FOREIGN KEY (`managerID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `user_ibfk_3` FOREIGN KEY (`managerID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `user_ibfk_4` FOREIGN KEY (`managerID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `user_ibfk_1` FOREIGN KEY (`managerID`) REFERENCES `user` (`userID`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

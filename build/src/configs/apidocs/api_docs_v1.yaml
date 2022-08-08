@@ -1,0 +1,1486 @@
+openapi: 3.0.1
+info:
+   title: Human Resource Management System
+   contact:
+      email: trungdongfym@gmail.com
+   version: 1.0.0
+servers:
+   - url: http://localhost:5000/api/v1
+tags:
+   - name: users
+     description: Everything about users
+   - name: Forms
+     description: Everything about forms
+   - name: AnnualReviewForms
+     description: Everything about anual review forms
+   - name: ProbationaryForms
+     description: Everything about probationary review forms
+paths:
+   /login:
+      post:
+         tags:
+            - users
+         summary: login users
+         operationId: userLoginId
+         requestBody:
+            description: Login body data
+            content:
+               application/json:
+                  schema:
+                     title: loginBody
+                     required:
+                        - confirmPassword
+                        - email
+                        - password
+                     type: object
+                     properties:
+                        email:
+                           type: string
+                        password:
+                           type: string
+                        confirmPassword:
+                           type: string
+                     example:
+                        email: admin@gmail.com
+                        password: Ledong1
+                        confirmPassword: Ledong1
+            required: true
+         responses:
+            200:
+               description: OK
+               content:
+                  application/json:
+                     example:
+                        status: true
+                        data:
+                           accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiI5NTFhNzI2Mi1iNWUwLTRhZWYtYTg4My1iMTZiNmQyNWEzNmMiLCJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInJvbGUiOiJBZG1pbiIsImlhdCI6MTY1OTc3ODc2NCwiZXhwIjoxNjU5ODY1MTY0fQ.7_ZQnwvDzPURW7-3iT6yuhfOzcDIbx2Ue2IKcVqjis4
+                           user:
+                              userID: 951a7262-b5e0-4aef-a883-b16b6d25a36c
+                              staffCode: Admin
+                              email: admin@gmail.com
+                              fullName: Le Trung Dong
+                              role: Admin
+            400:
+               description: Bad request
+               content: {}
+            404:
+               description: Not found
+               content:
+                  application/json:
+                     example: Email or password incorrect!
+   /users:
+      get:
+         tags:
+            - users
+         summary: get users, only admin can access
+         operationId: getUsersId
+         parameters:
+            - name: page
+              in: query
+              description: Use for pagination
+              schema:
+                 type: integer
+                 format: int32
+            - name: pageSize
+              in: query
+              description: Use for pagination
+              schema:
+                 type: integer
+                 format: int32
+            - name: requireManager
+              in: query
+              description: Use for populate to manager of user
+              schema:
+                 type: boolean
+            - name: user[staffCode]
+              in: query
+              description: Get by staff code
+              schema:
+                 type: string
+            - name: user[email]
+              in: query
+              description: Get by email
+              schema:
+                 type: string
+            - name: roles[]
+              in: query
+              description: Get by roles, must be in the values is Admin, Drirector, HR, Manager, Employee
+              style: form
+              explode: true
+              schema:
+                 type: array
+                 items:
+                    type: string
+                    uniqueItems: true
+                    minItems: 1
+         responses:
+            200:
+               description: Returns the users results obtained based on query params
+               content:
+                  application/json:
+                     example:
+                        data:
+                           count: 14
+                           rows:
+                              [
+                                 {
+                                    fullName: trung dong,
+                                    avatar: null,
+                                    userID: '0d3e4943-7d8e-4b3f-bcca-7a2c021c9047',
+                                    staffCode: 'em07',
+                                    firstName: 'trung',
+                                    lastName: 'dong',
+                                    phone: null,
+                                    cmnd: null,
+                                    numberBHXH: null,
+                                    address: null,
+                                    email: 'em7@gmail.com',
+                                    role: 'Employee',
+                                    createdAt: '2022-08-06T15:59:29.000Z',
+                                    updatedAt: '2022-08-06T15:59:29.000Z',
+                                    manager: null,
+                                 },
+                              ]
+                        meta:
+                           requireManager: true
+                           page: 0
+                           pageSize: 1
+         deprecated: false
+         security:
+            - Bearer: []
+      post:
+         tags:
+            - users
+         summary: create users, only admin can access
+         operationId: createUsersId
+         requestBody:
+            content:
+               multipart/form-data:
+                  schema:
+                     allOf:
+                        - $ref: '#/components/schemas/User'
+                     required:
+                        - email
+                        - firstName
+                        - lastName
+                        - password
+                        - role
+                        - staffCode
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        fullName: trung dong
+                        userID: 9adb651d-47e6-4333-95d0-52487459736f
+                        staffCode: em08,
+                        email: em8@gmail.com,
+                        firstName: trung,
+                        lastName: dong,
+                        password: $2b$10$yXjl8Rb6Pgx/L7JwHM4RW.jvR8vqgWNRkML3x6qKsjn20bpIosFiy
+                        role: Employee
+                        updatedAt: 2022-08-07T07:54:34.191Z
+                        createdAt: 2022-08-07T07:54:34.191Z
+         deprecated: false
+         security:
+            - Bearer: []
+   /logout:
+      delete:
+         tags:
+            - users
+         summary: logout user
+         operationId: logoutId
+         responses:
+            200:
+               description: Return logout result
+               content:
+                  application/json:
+                     example:
+                        status: true
+                        message: Logout successfully
+         deprecated: false
+         security:
+            - Bearer: []
+   /users/{userID}:
+      delete:
+         tags:
+            - users
+         summary: delete user, only admin can access
+         operationId: deleteUserId
+         parameters:
+            - name: userID
+              in: path
+              required: true
+              schema:
+                 type: string
+                 format: uuidv4
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        status: true,
+                        message: 'Delete success userID: 0d3e4943-7d8e-4b3f-bcca-7a2c021c9047'
+         deprecated: false
+         security:
+            - Bearer: []
+      patch:
+         tags:
+            - users
+         summary: update users
+         operationId: updateUsersId
+         parameters:
+            - name: userID
+              in: path
+              description: ID of user to update
+              required: true
+              schema:
+                 type: string
+                 format: uuidv4
+         requestBody:
+            content:
+               multipart/form-data:
+                  schema:
+                     allOf:
+                        - $ref: '#/components/schemas/User'
+                        - type: object
+                          properties:
+                             managerID:
+                                type: string
+                                format: uuidv4
+                                description: 'ID of manger, only admin can change'
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        userID: '1a96edcb-d77e-473e-8dd3-d18058c0584a'
+                        fullName: 'trung dong'
+                        avatar: null
+                        staffCode: 'dr02'
+                        firstName: 'trung'
+                        lastName: 'dong'
+                        phone: null
+                        cmnd: null
+                        numberBHXH: null
+                        address: null
+                        email: 'dr2@gmail.com'
+                        password: '$2b$10$w8us4hccNMBMT375UQmic.06j0Y9LJyLMaHgpv1vzCcSLCLE5hEHi'
+                        role: 'Drirector'
+                        createdAt: '2022-08-02T06:58:00.000Z'
+                        updatedAt: '2022-08-02T06:58:00.000Z'
+                        deletedAt: null
+                        managerID: null
+         deprecated: false
+         security:
+            - Bearer: []
+   /user:
+      get:
+         tags:
+            - users
+         summary: get user
+         operationId: getuserId
+         parameters:
+            - name: userID
+              in: query
+              description: ID of user to return
+              required: true
+              schema:
+                 type: string
+                 format: uuidv4
+            - name: requireManager
+              in: query
+              schema:
+                 type: boolean
+         responses:
+            200:
+               description: ''
+               content:
+                  application/json:
+                     example:
+                        data:
+                           fullName: 'trung dong'
+                           avatar: null
+                           userID: '1a96edcb-d77e-473e-8dd3-d18058c0584a'
+                           staffCode: 'dr02'
+                           firstName: 'trung'
+                           lastName: 'dong'
+                           phone: null
+                           cmnd: null
+                           numberBHXH: null
+                           address: null
+                           email: 'dr2@gmail.com'
+                           role: 'Drirector'
+                           createdAt: '2022-08-02T06:58:00.000Z'
+                           updatedAt: '2022-08-02T06:58:00.000Z'
+                           manager: null,
+                        meta:
+                           userID: '1a96edcb-d77e-473e-8dd3-d18058c0584a'
+                           requireManager: true
+         deprecated: false
+         security:
+            - Bearer: []
+   /annualReviewForms:
+      get:
+         tags:
+            - AnnualReviewForms
+         summary: Get annual review forms
+         operationId: getFormsId
+         parameters:
+            - in: query
+              name: 'qs'
+              explode: true
+              allowReserved: true
+              style: deepObject
+              description: '
+                 - <b>possible values:</b> <br/>
+                 - <b>search:</b> <br/>
+                 + field: title <br/>
+                 - <b>filter:</b> <br/>
+                 + status: open, review, approve <br/>
+                 + formType: annualReviewForm, probationaryForm <br/>
+                 - <b>sort:</b> <br/>
+                 + field: createdAt, updatedAt<br/>
+                 + type: ASC, DESC
+                 '
+              schema:
+                 allOf:
+                    - $ref: '#/components/schemas/FormQueryParams'
+                 example:
+                    search:
+                       field: ['title']
+                       value: 'title fulltext search'
+                    filter:
+                       status: 'open'
+                       formCode: 'formStoreId'
+                       year: 2022
+                       ownerID: 'uuidv4'
+                       reviewerID: 'uuidv4'
+                    sort:
+                       field: ['createdAt', 'sendTime', 'numReject']
+                       type: 'ASC'
+                    page: 0
+                    pageSize: 6
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        {
+                           'data':
+                              {
+                                 'count': 3,
+                                 'rows':
+                                    [
+                                       {
+                                          'formID': 'bd9d92a0-5729-4910-85ce-94c04b06c2dc',
+                                          'formCode': 'form02',
+                                          'ownerID': '7fc453d4-6b6e-40eb-9353-4cde950dea11',
+                                          'reviewerID': null,
+                                          'sendTime': null,
+                                          'status': 'open',
+                                          'numReject': 0,
+                                          'createdAt': '2022-08-02T14:40:11.000Z',
+                                          'updatedAt': '2022-08-02T14:40:11.000Z',
+                                          'department': null,
+                                          'point': 0,
+                                          'review': 'okok',
+                                          'year': 2022,
+                                          'title': 'form khảo sát giai đoạn 1',
+                                          'describe': 'asfdhajksgd',
+                                          'note': 'kkkkkk',
+                                          'createrID': '951a7262-b5e0-4aef-a883-b16b6d25a36c',
+                                       },
+                                       {
+                                          'formID': '033c270d-615d-4bd7-abe2-b2386df8a5b7',
+                                          'formCode': 'form02',
+                                          'ownerID': '9c15ba67-8ee6-4685-87f3-63f8aab6ad51',
+                                          'reviewerID': null,
+                                          'sendTime': null,
+                                          'status': 'open',
+                                          'numReject': 0,
+                                          'createdAt': '2022-08-02T14:40:11.000Z',
+                                          'updatedAt': '2022-08-02T14:40:11.000Z',
+                                          'department': null,
+                                          'point': 0,
+                                          'review': 'okok',
+                                          'year': 2022,
+                                          'title': 'form khảo sát giai đoạn 1',
+                                          'describe': 'asfdhajksgd',
+                                          'note': 'kkkkkk',
+                                          'createrID': '951a7262-b5e0-4aef-a883-b16b6d25a36c',
+                                       },
+                                    ],
+                              },
+                           'meta':
+                              {
+                                 'search': { 'field': ['title'], 'value': 'khảo sát' },
+                                 'filter': { 'status': 'open' },
+                                 'sort': { 'field': ['createdAt'], 'type': 'ASC' },
+                                 'page': 0,
+                                 'pageSize': 6,
+                              },
+                        }
+         deprecated: false
+         security:
+            - Bearer: []
+      post:
+         tags:
+            - AnnualReviewForms
+         summary: Create annual form to all users (public from form store)
+         operationId: createtAnnualFormId
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     allOf:
+                        - required:
+                             - formCode
+                        - $ref: '#/components/schemas/AnnualReviewForms'
+                     example:
+                        formCode: form07
+                        year: '2022'
+                        department: 'accounting'
+                        review: 'review form'
+                        point: 0
+            required: true
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        [
+                           {
+                              formID: '4825077b-38d4-4d47-b147-39adea7151e1',
+                              status: 'open',
+                              numReject: 0,
+                              formCode: 'form05',
+                              annualReviewForm:
+                                 {
+                                    formID: '4825077b-38d4-4d47-b147-39adea7151e1',
+                                    point: 0,
+                                    department: 'accounting',
+                                    year: 2022,
+                                    review: 'review form',
+                                 },
+                              ownerID: '7fc453d4-6b6e-40eb-9353-4cde950dea11',
+                              createdAt: '2022-08-08T03:09:38.324Z',
+                              updatedAt: '2022-08-08T03:09:38.324Z',
+                           },
+                           {
+                              formID: '0b775fdd-4f45-4140-8b6a-53af02c55a25',
+                              status: 'open',
+                              numReject: 0,
+                              formCode: 'form05',
+                              annualReviewForm:
+                                 {
+                                    formID: '0b775fdd-4f45-4140-8b6a-53af02c55a25',
+                                    point: 0,
+                                    department: 'accounting',
+                                    year: 2022,
+                                    review: 'review form',
+                                 },
+                              ownerID: '8d7963e6-49a5-40f0-8790-874d030d9fc6',
+                              createdAt: '2022-08-08T03:09:38.324Z',
+                              updatedAt: '2022-08-08T03:09:38.324Z',
+                           },
+                        ]
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /annualReviewForms/{formCode}:
+      patch:
+         tags:
+            - AnnualReviewForms
+         summary: Update all annual forms
+         operationId: updatetoall
+         parameters:
+            - name: formCode
+              in: path
+              required: true
+              schema:
+                 type: string
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     $ref: '#/components/schemas/AnnualReviewForms'
+                  example:
+                     year: '2022'
+                     department: 'accounting'
+                     review: 'review form update'
+                     point: 0
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        [
+                           {
+                              formID: '4825077b-38d4-4d47-b147-39adea7151e1',
+                              formCode: 'form05',
+                              status: 'open',
+                              numReject: 0,
+                              sendTime: null,
+                              ownerID: '7fc453d4-6b6e-40eb-9353-4cde950dea11',
+                              createdAt: '2022-08-08T03:09:38.000Z',
+                              updatedAt: '2022-08-08T03:18:05.151Z',
+                              reviewerID: null,
+                              annualReviewForm:
+                                 {
+                                    formID: '4825077b-38d4-4d47-b147-39adea7151e1',
+                                    department: 'accounting',
+                                    year: 2022,
+                                    review: 'review form update',
+                                    point: 0,
+                                 },
+                           },
+                           {
+                              formID: '0b775fdd-4f45-4140-8b6a-53af02c55a25',
+                              formCode: 'form05',
+                              status: 'open',
+                              numReject: 0,
+                              sendTime: null,
+                              ownerID: '8d7963e6-49a5-40f0-8790-874d030d9fc6',
+                              createdAt: '2022-08-08T03:09:38.000Z',
+                              updatedAt: '2022-08-08T03:18:05.158Z',
+                              reviewerID: null,
+                              annualReviewForm:
+                                 {
+                                    formID: '0b775fdd-4f45-4140-8b6a-53af02c55a25',
+                                    department: 'accounting',
+                                    year: 2022,
+                                    review: 'review form update',
+                                    point: 0,
+                                 },
+                           },
+                        ]
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /annualReviewForm/{formID}:
+      patch:
+         tags:
+            - AnnualReviewForms
+         summary: Update a annual review form
+         operationId: updateoneform
+         parameters:
+            - name: formID
+              in: path
+              required: true
+              schema:
+                 type: string
+                 format: uuidv4
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     $ref: '#/components/schemas/AnnualReviewForms'
+                  example:
+                     department: 'accounting'
+                     review: 'review form update'
+                     point: 0
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        formID: '06c007bb-f208-434d-b548-ed0fa593bed2'
+                        formCode: 'form05'
+                        status: 'open'
+                        numReject: 0
+                        sendTime: null
+                        ownerID: '9adb651d-47e6-4333-95d0-52487459736f'
+                        createdAt: '2022-08-08T03:09:38.000Z'
+                        updatedAt: '2022-08-08T03:21:23.439Z'
+                        reviewerID: null
+                        annualReviewForm:
+                           formID: '06c007bb-f208-434d-b548-ed0fa593bed2'
+                           department: 'accounting'
+                           year: 2022
+                           review: 'review form update employee'
+                           point: 0
+
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /annualReviewForm:
+      get:
+         tags:
+            - AnnualReviewForms
+         summary: Get a annual review form
+         operationId: getform
+         parameters:
+            - name: formID
+              in: query
+              required: true
+              schema:
+                 type: string
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        formID: '06c007bb-f208-434d-b548-ed0fa593bed2'
+                        formCode: 'form05'
+                        ownerID: '9adb651d-47e6-4333-95d0-52487459736f'
+                        reviewerID: null
+                        sendTime: null
+                        status: 'open'
+                        numReject: 0
+                        createdAt: '2022-08-08T03:09:38.000Z'
+                        updatedAt: '2022-08-08T03:21:23.000Z'
+                        department: 'accounting'
+                        point: 0
+                        review: 'review form update employee'
+                        year: 2022
+                        title: 'create ok form annual'
+                        describe: 'abc kkasfdha '
+                        note: 'dcaasfda e'
+                        createrID: 'e796427b-cb2f-442b-bbc7-4e4c1bf74e3e'
+         deprecated: false
+         security:
+            - Bearer: []
+   /probationaryForms:
+      get:
+         tags:
+            - ProbationaryForms
+         summary: Get probationary forms
+         operationId: Getgetforms
+         parameters:
+            - in: query
+              name: 'qs'
+              explode: true
+              allowReserved: true
+              style: deepObject
+              description: '
+                 - <b>possible values:</b> <br/>
+                 - <b>search:</b> <br/>
+                 + field: title <br/>
+                 - <b>filter:</b> <br/>
+                 + status: open, review, approve <br/>
+                 + formType: annualReviewForm, probationaryForm <br/>
+                 - <b>sort:</b> <br/>
+                 + field: createdAt, updatedAt<br/>
+                 + type: ASC, DESC
+                 '
+              schema:
+                 allOf:
+                    - $ref: '#/components/schemas/FormQueryParams'
+                 example:
+                    search:
+                       field: ['title']
+                       value: 'title fulltext search'
+                    filter:
+                       status: 'open'
+                       formCode: 'formStoreId'
+                       position: 'xyz'
+                       ownerID: 'uuidv4'
+                       reviewerID: 'uuidv4'
+                    sort:
+                       field: ['createdAt', 'sendTime', 'numReject']
+                       type: 'ASC'
+                    page: 0
+                    pageSize: 6
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        {
+                           'data':
+                              {
+                                 'count': 1,
+                                 'rows':
+                                    [
+                                       {
+                                          'formID': '35d7759e-b81d-420f-8b15-86bdd6ef4283',
+                                          'formCode': 'form01',
+                                          'ownerID': 'ef94ffd0-7e1d-497b-8d4e-40ef973b3c15',
+                                          'reviewerID': 'f0d3c522-a977-49eb-a097-705f49d9d55e',
+                                          'sendTime': '2022-08-08T02:25:49.000Z',
+                                          'status': 'review',
+                                          'numReject': 0,
+                                          'createdAt': '2022-08-03T03:32:30.000Z',
+                                          'updatedAt': '2022-08-08T02:25:49.000Z',
+                                          'durationTime': 10,
+                                          'startTime': '2022-08-02T07:54:51.000Z',
+                                          'position': 'Employee',
+                                          'comments': 'update ok r',
+                                          'workResult': 'kkkk',
+                                          'title': 'khảo sát giai đoạn 2',
+                                          'describe': 'asfdhajksgd',
+                                          'note': 'kkkkkk',
+                                          'createrID': 'e796427b-cb2f-442b-bbc7-4e4c1bf74e3e',
+                                       },
+                                    ],
+                              },
+                           'meta':
+                              {
+                                 'search': { 'field': ['title'], 'value': 'khảo sát' },
+                                 'filter': { 'status': 'review' },
+                                 'sort': { 'field': ['createdAt'], 'type': 'ASC' },
+                                 'page': 0,
+                                 'pageSize': 6,
+                              },
+                        }
+         deprecated: false
+         security:
+            - Bearer: []
+      post:
+         tags:
+            - ProbationaryForms
+         summary: Create probationary form to all users (public from form store)
+         operationId: createProbFormId
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     allOf:
+                        - $ref: '#/components/schemas/ProbationaryForms'
+                        - required:
+                             - formCode
+                     example:
+                        formCode: 'form01'
+                        durationTime: 3
+                        startTime: '2022-08-08T03:09:38.000Z'
+                        position: 'xyz'
+                        comments: 'comment form'
+                        workResult: 'work result'
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        [
+                           {
+                              formID: '68229e2b-4387-4235-8219-bac1916f0ee7',
+                              status: 'open',
+                              numReject: 0,
+                              formCode: 'form03',
+                              probationaryForm:
+                                 {
+                                    formID: '68229e2b-4387-4235-8219-bac1916f0ee7',
+                                    durationTime: 3,
+                                    startTime: '2022-08-08T03:09:38.000Z',
+                                    position: 'xyz',
+                                    comments: 'comment form',
+                                    workResult: 'work result',
+                                 },
+                              ownerID: '7fc453d4-6b6e-40eb-9353-4cde950dea11',
+                              createdAt: '2022-08-08T03:51:32.001Z',
+                              updatedAt: '2022-08-08T03:51:32.001Z',
+                           },
+                           {
+                              formID: '946a6547-0efb-4bf4-81a2-94d8cb96d014',
+                              status: 'open',
+                              numReject: 0,
+                              formCode: 'form03',
+                              probationaryForm:
+                                 {
+                                    formID: '946a6547-0efb-4bf4-81a2-94d8cb96d014',
+                                    durationTime: 3,
+                                    startTime: '2022-08-08T03:09:38.000Z',
+                                    position: 'xyz',
+                                    comments: 'comment form',
+                                    workResult: 'work result',
+                                 },
+                              ownerID: '8d7963e6-49a5-40f0-8790-874d030d9fc6',
+                              createdAt: '2022-08-08T03:51:32.001Z',
+                              updatedAt: '2022-08-08T03:51:32.001Z',
+                           },
+                        ]
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /probationaryForms/{formCode}:
+      patch:
+         tags:
+            - ProbationaryForms
+         summary: Update all probationary forms
+         operationId: Patchupdatetoall
+         parameters:
+            - name: formCode
+              in: path
+              required: true
+              schema:
+                 type: string
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     allOf:
+                        - $ref: '#/components/schemas/ProbationaryForms'
+                     example:
+                        durationTime: 5
+                        startTime: '2022-08-08T00:00:00.000Z'
+                        position: 'xyz'
+                        comments: 'comment form update all'
+                        workResult: 'work result update all'
+
+            required: true
+         responses:
+            200:
+               description: ''
+               content:
+                  application/json:
+                     example:
+                        [
+                           {
+                              formID: '68229e2b-4387-4235-8219-bac1916f0ee7',
+                              formCode: 'form03',
+                              status: 'open',
+                              numReject: 0,
+                              sendTime: null,
+                              ownerID: '7fc453d4-6b6e-40eb-9353-4cde950dea11',
+                              createdAt: '2022-08-08T03:51:32.000Z',
+                              updatedAt: '2022-08-08T04:18:20.789Z',
+                              reviewerID: null,
+                              probationaryForm:
+                                 {
+                                    formID: '68229e2b-4387-4235-8219-bac1916f0ee7',
+                                    durationTime: 5,
+                                    startTime: '2022-08-08T00:00:00.000Z',
+                                    position: 'xyz',
+                                    comments: 'comment form update all',
+                                    workResult: 'work result update all',
+                                 },
+                           },
+                           {
+                              formID: '946a6547-0efb-4bf4-81a2-94d8cb96d014',
+                              formCode: 'form03',
+                              status: 'open',
+                              numReject: 0,
+                              sendTime: null,
+                              ownerID: '8d7963e6-49a5-40f0-8790-874d030d9fc6',
+                              createdAt: '2022-08-08T03:51:32.000Z',
+                              updatedAt: '2022-08-08T04:18:20.809Z',
+                              reviewerID: null,
+                              probationaryForm:
+                                 {
+                                    formID: '946a6547-0efb-4bf4-81a2-94d8cb96d014',
+                                    durationTime: 5,
+                                    startTime: '2022-08-08T00:00:00.000Z',
+                                    position: 'xyz',
+                                    comments: 'comment form update all',
+                                    workResult: 'work result update all',
+                                 },
+                           },
+                        ]
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /probationaryForm/{formID}:
+      patch:
+         tags:
+            - ProbationaryForms
+         summary: Update a probationary form
+         operationId: updateProbFormId
+         parameters:
+            - name: formID
+              in: path
+              required: true
+              schema:
+                 type: string
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     allOf:
+                        - $ref: '#/components/schemas/ProbationaryForms'
+                     example:
+                        durationTime: 5
+                        startTime: '2022-08-08T00:00:00.000Z'
+                        position: 'xyz'
+                        comments: 'comment form update one'
+                        workResult: 'work result update one'
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        formID: '517e41ed-d408-4f4b-99c3-8536f0dab28b'
+                        formCode: 'form03'
+                        status: 'open'
+                        numReject: 0
+                        sendTime: null
+                        ownerID: 'cfff8f10-7234-4382-8be2-12daedb44a4e'
+                        createdAt: '2022-08-08T03:51:32.000Z'
+                        updatedAt: '2022-08-08T04:24:50.882Z'
+                        reviewerID: null
+                        probationaryForm:
+                           formID: '517e41ed-d408-4f4b-99c3-8536f0dab28b'
+                           durationTime: 5
+                           startTime: '2022-08-08T00:00:00.000Z'
+                           position: 'xyz'
+                           comments: 'comment form update one'
+                           workResult: 'work result update one'
+
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /probationaryForm:
+      get:
+         tags:
+            - ProbationaryForms
+         summary: Get a probationary form
+         operationId: getProbFormId
+         parameters:
+            - name: formID
+              in: query
+              required: true
+              schema:
+                 type: string
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        formID: '517e41ed-d408-4f4b-99c3-8536f0dab28b'
+                        formCode: 'form03'
+                        ownerID: 'cfff8f10-7234-4382-8be2-12daedb44a4e'
+                        reviewerID: null
+                        sendTime: null
+                        status: 'open'
+                        numReject: 0
+                        createdAt: '2022-08-08T03:51:32.000Z'
+                        updatedAt: '2022-08-08T04:24:50.000Z'
+                        durationTime: 5
+                        startTime: '2022-08-08T00:00:00.000Z'
+                        position: 'xyz'
+                        comments: 'comment form update one'
+                        workResult: 'work result update one'
+                        title: 'form khảo sát giai đoạn 3'
+                        describe: 'asfdhajks adfiagd'
+                        note: 'kkkkkk'
+                        createrID: '951a7262-b5e0-4aef-a883-b16b6d25a36c'
+         deprecated: false
+         security:
+            - Bearer: []
+   /formStore:
+      get:
+         tags:
+            - Forms
+         summary: Get form store
+         operationId: getformstore
+         parameters:
+            - in: query
+              name: 'qs'
+              explode: true
+              allowReserved: true
+              style: deepObject
+              description: '
+                 - <b>possible values:</b> <br/>
+                 - <b>search:</b> <br/>
+                 + field: title <br/>
+                 - <b>filter:</b> <br/>
+                 + status: public, private <br/>
+                 + formType: annualReviewForm, probationaryForm <br/>
+                 - <b>sort:</b> <br/>
+                 + field: createdAt, updatedAt<br/>
+                 + type: ASC, DESC
+                 '
+              schema:
+                 allOf:
+                    - $ref: '#/components/schemas/FormQueryParams'
+                 example:
+                    search:
+                       field: ['title']
+                       value: 'title fulltext search'
+                    filter:
+                       status: 'public'
+                       formType: 'formStoreId'
+                       createrID: 'uuidv4'
+                    sort:
+                       field: ['createdAt', 'updatedAt']
+                       type: 'ASC'
+                    page: 0
+                    pageSize: 6
+
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        {
+                           'data':
+                              [
+                                 {
+                                    'formCode': 'form02',
+                                    'status': 'public',
+                                    'title': 'form khảo sát giai đoạn 1',
+                                    'formType': 'annualReviewForm',
+                                    'describe': 'asfdhajksgd',
+                                    'note': 'kkkkkk',
+                                    'createrID': '951a7262-b5e0-4aef-a883-b16b6d25a36c',
+                                    'createdAt': '2022-08-02T14:38:02.000Z',
+                                    'updatedAt': '2022-08-03T04:36:22.000Z',
+                                 },
+                              ],
+                           'meta':
+                              {
+                                 'search': { 'field': ['title'], 'value': 'khảo sát' },
+                                 'filter': { 'formType': 'annualReviewForm' },
+                                 'sort': { 'field': ['createdAt', 'updatedAt'], 'type': 'ASC' },
+                              },
+                        }
+         deprecated: false
+         security:
+            - Bearer: []
+      post:
+         tags:
+            - Forms
+         summary: create form store
+         operationId: createformstore
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     allOf:
+                        - required:
+                             - formCode
+                             - title
+                             - formType
+                        - $ref: '#/components/schemas/FormStore'
+                  example:
+                     formCode: form01
+                     title: form store title
+                     formType: annualReviewForm
+                     describe: describe form store
+                     note: note form store
+
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        status: 'private'
+                        formCode: 'form01'
+                        title: 'form store title'
+                        formType: 'annualReviewForm'
+                        describe: 'describe form store'
+                        note: 'note form store'
+                        createrID: '951a7262-b5e0-4aef-a883-b16b6d25a36c'
+                        updatedAt: '2022-08-07T11:26:08.192Z'
+                        createdAt: '2022-08-07T11:26:08.192Z'
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /formStore/{formCode}:
+      delete:
+         tags:
+            - Forms
+         summary: Delete formstore (delete all form with formCode of form store)
+         operationId: deleteFormStoreId
+         parameters:
+            - name: formCode
+              in: path
+              required: true
+              schema:
+                 type: string
+         responses:
+            200:
+               description: ok
+               content:
+                  application/json:
+                     example:
+                        status: true,
+                        message: 'Form with formCode:form07 deleted!'
+            404:
+               description: 'Not found'
+               content:
+                  application/json:
+                     example: 'Not Found Forms!'
+         deprecated: false
+         security:
+            - Bearer: []
+      patch:
+         tags:
+            - Forms
+         summary: Update form store
+         operationId: updateFormstoreId
+         parameters:
+            - name: formCode
+              in: path
+              required: true
+              schema:
+                 type: string
+                 format: uuidv4
+         requestBody:
+            content:
+               application/json:
+                  schema:
+                     $ref: '#/components/schemas/FormStore'
+                  example:
+                     title: form store title
+                     formType: annualReviewForm
+                     describe: describe form store
+                     note: note form store
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        formCode: 'form08'
+                        status: 'private'
+                        title: 'form store title'
+                        formType: 'annualReviewForm'
+                        describe: 'describe form store'
+                        note: 'note form store'
+                        createrID: '951a7262-b5e0-4aef-a883-b16b6d25a36c'
+                        createdAt: '2022-08-07T11:26:08.000Z'
+                        updatedAt: '2022-08-08T02:20:27.386Z'
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /reportForms:
+      get:
+         tags:
+            - Forms
+         summary: Statistics on form completion status
+         operationId: reportforms
+         parameters:
+            - name: filter[formCode]
+              in: query
+              schema:
+                 type: string
+            - name: filter[formType]
+              in: query
+              schema:
+                 type: string
+            - name: detailsField
+              in: query
+              style: form
+              explode: false
+              schema:
+                 type: array
+                 items:
+                    type: string
+                    enum:
+                       - owner
+                       - reviewer
+                       - formStore
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        [
+                           {
+                              'status': 'open',
+                              'quantity': 3,
+                              'formCode': 'form02',
+                              'formType': 'annualReviewForm',
+                              'detailData':
+                                 [
+                                    {
+                                       'formStore':
+                                          {
+                                             'formCode': 'form02',
+                                             'title': 'form khảo sát giai đoạn 1',
+                                             'formType': 'annualReviewForm',
+                                             'describe': 'asfdhajksgd',
+                                             'note': 'kkkkkk',
+                                          },
+                                    },
+                                    {
+                                       'formStore':
+                                          {
+                                             'formCode': 'form02',
+                                             'title': 'form khảo sát giai đoạn 1',
+                                             'formType': 'annualReviewForm',
+                                             'describe': 'asfdhajksgd',
+                                             'note': 'kkkkkk',
+                                          },
+                                    },
+                                    {
+                                       'formStore':
+                                          {
+                                             'formCode': 'form02',
+                                             'title': 'form khảo sát giai đoạn 1',
+                                             'formType': 'annualReviewForm',
+                                             'describe': 'asfdhajksgd',
+                                             'note': 'kkkkkk',
+                                          },
+                                    },
+                                 ],
+                           },
+                           {
+                              'status': 'approve',
+                              'quantity': 1,
+                              'formCode': 'form02',
+                              'formType': 'annualReviewForm',
+                              'detailData':
+                                 [
+                                    {
+                                       'formStore':
+                                          {
+                                             'formCode': 'form02',
+                                             'title': 'form khảo sát giai đoạn 1',
+                                             'formType': 'annualReviewForm',
+                                             'describe': 'asfdhajksgd',
+                                             'note': 'kkkkkk',
+                                          },
+                                    },
+                                 ],
+                           },
+                           {
+                              'status': 'review',
+                              'quantity': 2,
+                              'formCode': 'form02',
+                              'formType': 'annualReviewForm',
+                              'detailData':
+                                 [
+                                    {
+                                       'formStore':
+                                          {
+                                             'formCode': 'form02',
+                                             'title': 'form khảo sát giai đoạn 1',
+                                             'formType': 'annualReviewForm',
+                                             'describe': 'asfdhajksgd',
+                                             'note': 'kkkkkk',
+                                          },
+                                    },
+                                    {
+                                       'formStore':
+                                          {
+                                             'formCode': 'form02',
+                                             'title': 'form khảo sát giai đoạn 1',
+                                             'formType': 'annualReviewForm',
+                                             'describe': 'asfdhajksgd',
+                                             'note': 'kkkkkk',
+                                          },
+                                    },
+                                 ],
+                           },
+                        ]
+         deprecated: false
+         security:
+            - Bearer: []
+   /updateFormStatus/{formID}:
+      patch:
+         tags:
+            - Forms
+         summary: submit or review form
+         operationId: submitorreviewform
+         parameters:
+            - name: formID
+              in: path
+              required: true
+              schema:
+                 type: string
+         requestBody:
+            description: Possible values of status is review | reject | approve
+            content:
+               application/json:
+                  schema:
+                     required:
+                        - status
+                     type: object
+                     properties:
+                        status:
+                           type: string
+                     example:
+                        status: review
+            required: true
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        formID: '35d7759e-b81d-420f-8b15-86bdd6ef4283'
+                        formCode: 'form01'
+                        status: 'review'
+                        numReject: 0
+                        sendTime: '2022-08-08T02:25:49.110Z'
+                        ownerID: 'ef94ffd0-7e1d-497b-8d4e-40ef973b3c15'
+                        createdAt: '2022-08-03T03:32:30.000Z'
+                        updatedAt: '2022-08-08T02:25:49.111Z'
+                        reviewerID: 'f0d3c522-a977-49eb-a097-705f49d9d55e'
+         deprecated: false
+         security:
+            - Bearer: []
+
+   /form/{formID}:
+      delete:
+         tags:
+            - Forms
+         summary: delete one form
+         operationId: deleteoneform
+         parameters:
+            - name: formID
+              in: path
+              required: true
+              schema:
+                 type: string
+         responses:
+            200:
+               description: 'ok'
+               content:
+                  application/json:
+                     example:
+                        status: true
+                        message: 'Form with formID:1935beea-57a8-457a-974e-0188f890a52b deleted!'
+         deprecated: false
+         security:
+            - Bearer: []
+components:
+   schemas:
+      User:
+         title: User
+         type: object
+         properties:
+            staffCode:
+               type: string
+               description: Must be unique, only admin can change
+            email:
+               type: string
+               description: Must be unique
+            firstName:
+               type: string
+               description: ''
+            lastName:
+               type: string
+               description: ''
+            password:
+               type: string
+               description: ''
+            role:
+               allOf:
+                  - $ref: '#/components/schemas/Roles'
+               description: Roles in the system, only admin can change
+            avatar:
+               type: string
+               format: binary
+               description: 'Avatar of user to upload'
+      FormStore:
+         title: FormStore
+         type: object
+         properties:
+            formCode:
+               type: string
+            title:
+               type: string
+            formType:
+               type: string
+               enum: ['populateAnnualForm', 'populateProbForm']
+            describe:
+               type: string
+            note:
+               type: string
+      FormQueryParams:
+         title: FormQueryParams
+         type: object
+         properties:
+            search:
+               type: object
+               required:
+                  - field
+                  - value
+               properties:
+                  field:
+                     type: array
+                     items:
+                        type: string
+                        enum: ['title']
+                  value:
+                     type: string
+            filter:
+               type: object
+               properties:
+                  status:
+                     type: string
+                  formCode:
+                     type: string
+                  year:
+                     type: integer
+                  ownerID:
+                     type: string
+                     format: uuidv4
+                  reviewerID:
+                     type: string
+                     format: uuidv4
+            sort:
+               type: object
+               properties:
+                  field:
+                     type: array
+                     items:
+                        type: string
+                  type:
+                     type: string
+                     enum: ['ASC', 'DESC']
+            page:
+               type: integer
+            pageSize:
+               type: integer
+      AnnualReviewForms:
+         title: AnnualReviewForms
+         type: object
+         properties:
+            formCode:
+               type: string
+            year:
+               type: string
+            department:
+               type: string
+            review:
+               type: string
+            point:
+               type: integer
+      ProbationaryForms:
+         title: ProbationaryForms
+         type: object
+         properties:
+            formCode:
+               type: string
+            durationTime:
+               type: integer
+               format: int32
+            startTime:
+               type: string
+            position:
+               type: string
+            comments:
+               type: string
+            workResult:
+               type: string
+      Roles:
+         title: Roles
+         type: string
+         enum: ['Admin', 'Drirector', 'HR', 'Manager', 'Employee']
+   securitySchemes:
+      Bearer:
+         type: http
+         scheme: Bearer

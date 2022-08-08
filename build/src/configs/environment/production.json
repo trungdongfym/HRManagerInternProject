@@ -1,0 +1,11 @@
+{
+   "production": {
+      "APP": {
+         "PORT": 3000
+      },
+      "DATABASES": {
+         "MYSQL": {},
+         "REDIS": {}
+      }
+   }
+}
