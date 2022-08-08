@@ -4,8 +4,6 @@
 
 ## Getting started
 
----
-
 ```
 $ npm i
 $ npm run syncDB
