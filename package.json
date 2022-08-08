@@ -11,6 +11,7 @@
       "dev": "cross-env NODE_ENV=dev nodemon --watch src/**/*.ts --exec ts-node ./src/app.ts",
       "syncDB": "cross-env NODE_ENV=dev nodemon --watch src/**/*.ts --exec ts-node ./src/configs/database/mysql/seeders/updateTable.ts",
       "syncDB:test": "cross-env NODE_ENV=test nodemon --watch src/**/*.ts --exec ts-node ./src/configs/database/mysql/seeders/updateTable.ts",
+      "dbRestore:dump": "mysql -u root -p managehr_test < ./src/configs/database/mysql/dumps/hrmanage_dump.sql",
       "createAdmin": "cross-env NODE_ENV=dev nodemon --exec ts-node ./src/helpers/createSupperUser.ts",
       "build": "tsc -p ."
    },
