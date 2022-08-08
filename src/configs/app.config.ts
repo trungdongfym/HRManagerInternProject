@@ -4,6 +4,7 @@ import { EnvEnum } from '../models/env.model';
 import * as path from 'path';
 
 process.env['NODE_CONFIG_DIR'] = path.resolve(__dirname, AppConst.ENV_DIR); // custom dir config
+console.log(path.resolve(__dirname, AppConst.ENV_DIR));
 import * as config from 'config';
 
 function getEnv(): AppEnv {
