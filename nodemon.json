@@ -1,4 +1,4 @@
 {
-   "verbose": false,
+   "verbose": true,
    "ignore": ["src/**/*.test.ts", "**/__test__/*"]
 }

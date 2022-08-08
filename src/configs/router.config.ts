@@ -6,9 +6,10 @@ import * as path from 'path';
 
 function routerConfig(app: express.Express) {
    //Read all file have pattern *.route.ts
-   const routes = glob.sync('**/*.route.ts', { cwd: AppConst.PATH_FOLDER_API });
+   const routes = glob.sync('../apis/**/*.route.ts', { cwd: __dirname });
    for (const route of routes) {
-      const pathRoute = path.normalize(AppConst.PATH_FOLDER_API + route);
+      const pathRoute = path.normalize(route);
+      console.log(pathRoute);
       const routeModule = require(pathRoute).default;
       if (routeModule) {
          console.log(`Ready route /${AppConst.API_PREFIX}/${AppConst.API_VERSION}/${routeModule}`);
