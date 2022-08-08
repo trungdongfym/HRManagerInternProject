@@ -1,13 +1,13 @@
 import * as Joi from 'joi';
-import { IFormQueryParams, IReportQueryParams, sortTypeArray } from '../../../../commons/interfaces';
-import { formAssociations, FormStatusArray, FormTypeArray } from '../../../../models/form.model';
+import { IFormQueryParams, sortTypeArray } from '../../../../commons/interfaces';
+import { FormStatusArray } from '../../../../models/form.model';
 import { formStoreObject } from '../forms.model';
 import { annualFormObject, IAnnualReviewForm } from './anualForm.model';
 
 class AnualFormValidate {
    public static createFormToAllSchema: Joi.ObjectSchema<IAnnualReviewForm> = Joi.object().keys({
       formCode: Joi.string().required(),
-      year: Joi.number().min(2000).max(new Date().getFullYear()).required(),
+      year: Joi.number().min(2000).max(new Date().getFullYear()),
       review: Joi.string().allow(null, ''),
       department: Joi.string(),
       point: Joi.number().positive().min(0).max(10).allow(null, ''),
@@ -29,7 +29,7 @@ class AnualFormValidate {
    public static queryFormSchema: Joi.ObjectSchema<IFormQueryParams<IAnnualReviewForm>> = Joi.object()
       .keys({
          search: Joi.object().keys({
-            field: Joi.array().items(Joi.valid(formStoreObject.title)).min(1).required(),
+            field: Joi.array().items(Joi.valid(formStoreObject.title)).single().default([]).min(1).required(),
             value: Joi.string().required(),
          }),
          filter: Joi.object().keys({
@@ -44,6 +44,8 @@ class AnualFormValidate {
                .items(
                   Joi.valid(annualFormObject.createdAt, annualFormObject.sendTime, annualFormObject.numReject)
                )
+               .single()
+               .default([])
                .min(1)
                .required(),
             type: Joi.string()

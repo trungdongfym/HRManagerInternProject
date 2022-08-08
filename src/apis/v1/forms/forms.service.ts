@@ -50,9 +50,11 @@ class FormService {
             if (!detailOwner) {
                throw HttpErrors.ServerError('User active but not found in DB!');
             }
+            // If user dont have manager, but actor >= drirector then assign managerID to reviewerID
             if (!detailOwner.managerID) {
                detailOwner.managerID = userActor.userID;
             }
+
             formUpdate.set('status', status);
             formUpdate.set('sendTime', new Date());
             formUpdate.set('reviewerID', detailOwner.managerID);
@@ -67,6 +69,7 @@ class FormService {
                const formUpdated = await formUpdate.save({ logging: false });
                return formUpdated;
             }
+
             if (status === FormStatusEnum.reject) {
                const numReject = formUpdate.numReject;
                formUpdate.numReject = numReject + 1;
@@ -291,6 +294,7 @@ class FormService {
                };
             });
          }
+
          // Result of statistics
          const result = await db.Form.findAll({
             ...findOptions,
@@ -308,10 +312,12 @@ class FormService {
                const { status } = value;
                const usersAndForms = await db.Form.findAll({
                   where: {
+                     ...findOptions.where,
                      status: status,
                   },
                   include: includeAttribute,
                });
+
                const detailData: Array<any> = [];
                // Get detail data
                for (const userAndForm of usersAndForms) {
@@ -333,6 +339,7 @@ class FormService {
                            'role',
                         ]);
                      }
+
                      if (field === formAssociations.formBelongsToFormStore) {
                         detailItem[field] = pickField(detailField as any, [
                            'formCode',

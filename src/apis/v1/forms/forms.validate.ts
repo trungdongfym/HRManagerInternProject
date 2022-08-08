@@ -43,13 +43,15 @@ class FormValidate {
                formAssociations.formBelongsToFormStore
             )
          )
+         .single()
+         .default([])
          .unique(),
    });
 
    public static queryFormStoreSchema: Joi.ObjectSchema<IFormStoreQueryParams> = Joi.object()
       .keys({
          search: Joi.object().keys({
-            field: Joi.array().items(Joi.valid(formStoreObject.title)).min(1).required(),
+            field: Joi.array().items(Joi.valid(formStoreObject.title)).single().default([]).min(1).required(),
             value: Joi.string().required(),
          }),
          filter: Joi.object().keys({
@@ -60,6 +62,8 @@ class FormValidate {
          sort: Joi.object().keys({
             field: Joi.array()
                .items(Joi.valid(formStoreObject.createdAt, formStoreObject.updatedAt))
+               .single()
+               .default([])
                .min(1)
                .required(),
             type: Joi.string()

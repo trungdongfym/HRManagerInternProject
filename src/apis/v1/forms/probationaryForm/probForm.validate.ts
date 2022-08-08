@@ -10,7 +10,7 @@ class ProbFormValidate {
       formCode: Joi.string().required(),
       durationTime: Joi.number().integer().positive(),
       startTime: Joi.date(),
-      position: Joi.string().valid(...rolesArray),
+      position: Joi.string(),
       comments: Joi.string(),
       workResult: Joi.string(),
    });
@@ -18,7 +18,7 @@ class ProbFormValidate {
    public static updateProbFormToAllSchema: Joi.ObjectSchema<IProbationaryForm> = Joi.object().keys({
       durationTime: Joi.number().integer().positive(),
       startTime: Joi.date(),
-      position: Joi.string().valid(...rolesArray),
+      position: Joi.string(),
       comments: Joi.string(),
       workResult: Joi.string(),
    });
@@ -26,7 +26,7 @@ class ProbFormValidate {
    public static updateFormSchema: Joi.ObjectSchema<IProbationaryForm> = Joi.object().keys({
       durationTime: Joi.number().integer().positive(),
       startTime: Joi.date(),
-      position: Joi.string().valid(...rolesArray),
+      position: Joi.string(),
       comments: Joi.string(),
       workResult: Joi.string(),
    });
@@ -34,13 +34,13 @@ class ProbFormValidate {
    public static queryFormSchema: Joi.ObjectSchema<IFormQueryParams<IProbationaryForm>> = Joi.object()
       .keys({
          search: Joi.object().keys({
-            field: Joi.array().items(Joi.valid(formStoreObject.title)).min(1).required(),
+            field: Joi.array().items(Joi.valid(formStoreObject.title)).single().default([]).min(1).required(),
             value: Joi.string().required(),
          }),
          filter: Joi.object().keys({
             status: Joi.string().valid(...FormStatusArray),
             formCode: Joi.string(),
-            position: Joi.string().valid(...rolesArray),
+            position: Joi.string(),
             ownerID: Joi.string().uuid({ version: 'uuidv4', separator: '-' }),
             reviewerID: Joi.string().uuid({ version: 'uuidv4', separator: '-' }),
          }),
@@ -48,6 +48,8 @@ class ProbFormValidate {
             field: Joi.array()
                .items(Joi.valid(probFormObject.createdAt, probFormObject.sendTime, probFormObject.numReject))
                .min(1)
+               .single()
+               .default([])
                .required(),
             type: Joi.string()
                .valid(...sortTypeArray)
