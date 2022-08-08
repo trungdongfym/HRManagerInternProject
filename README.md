@@ -1,3 +1,17 @@
+# Human Resource Managerment
+
+---
+
+## Getting started
+
+---
+
+```
+$ npm i
+$ npm run syncDB
+$ npm start
+```
+
 Hệ thống có các modules chính sau:
 
 -  Quản lý users, roles, permission (1 user có thể có nhiều roles, một roles có nhiều permission) (permisson sẽ phân dựa trên 5 quyền cơ bản R, W, U, D, A (read, write, update, delete, approve)
@@ -7,13 +21,13 @@ Hệ thống có các modules chính sau:
 -  Quản lý thông tin cá nhân (id, mã nhân viên, firstname, lastname, email, phone, avatar, cmnd, số số BHXH, phụ thuộc, address, …etc)
 -  Notifications
 
-*  Gửi email thông báo đến tất cả nhân viên khi (admin, HR) tạo một một form thử việc mới
-*  Gửi email thông báo đến tất cả các nhân viên khi (admin, HR) tạo một form đánh giá định kỳ hàng năm mới
+   -  Gửi email thông báo đến tất cả nhân viên khi (admin, HR) tạo một một form thử việc mới
+   -  Gửi email thông báo đến tất cả các nhân viên khi (admin, HR) tạo một form đánh giá định kỳ hàng năm mới
 
 -  Report
 
-*  Báo cáo tình trạng tất cả các nhân viên đã, chưa hoàn thành forms đánh giá thử việc
-*  Báo cáo tình trạng tất cả các nhân viên đã, chưa hoàn thành forms đánh giá định kỳ hàng năm
+   -  Báo cáo tình trạng tất cả các nhân viên đã, chưa hoàn thành forms đánh giá thử việc
+   -  Báo cáo tình trạng tất cả các nhân viên đã, chưa hoàn thành forms đánh giá định kỳ hàng năm
 
 Hệ thống có 5 vài trò chính
 
@@ -51,10 +65,10 @@ Employee
 
 -  Trạng thái của form:
 
-*  open: Nhân viên chưa điền form đánh giá
-*  review: Nhân viên đã chuyển form đánh giá cho quản lý
-*  reject: Quản lý từ chối form đánh giá
-*  approve: Quản lý phê duyệt form đánh giá
+   -  open: Nhân viên chưa điền form đánh giá
+   -  review: Nhân viên đã chuyển form đánh giá cho quản lý
+   -  reject: Quản lý từ chối form đánh giá
+   -  approve: Quản lý phê duyệt form đánh giá
 
 Class Diagram
 

@@ -57,7 +57,6 @@ class UserValidate {
             email: Joi.string()
                .trim()
                .email({ tlds: { allow: false } }),
-            role: Joi.string().valid(...rolesArray),
          }),
          page: Joi.when('pageSize', {
             is: Joi.exist(),

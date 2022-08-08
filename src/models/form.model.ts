@@ -33,6 +33,25 @@ export enum FormStoreAssociation {
    formStorehasManyForm = 'forms',
 }
 
+const x = {
+   search: {
+      field: ['title'],
+      value: 'title fulltext search',
+   },
+   filter: {
+      status: 'public',
+      formCode: 'formStoreId',
+      year: 2022,
+      ownerID: 'uuidv4',
+      reviewerID: 'uuidv4',
+   },
+   sort: {
+      field: ['string'],
+      type: 'ASC',
+   },
+   page: 0,
+   pageSize: 6,
+};
 export const FormStatusArray = Object.values(FormStatusEnum);
 export const FormTypeArray = Object.values(FormTypeEnum);
 export const FormStoreStatusArray = Object.values(FormStoreStatusEnum);

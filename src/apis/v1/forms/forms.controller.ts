@@ -26,7 +26,6 @@ class FormController {
          const responseData = {
             status: true,
             message: `Form with formCode:${formCode} deleted!`,
-            deleteCount: deletedCount,
          };
          if (deletedCount <= 0) {
             responseData.status = false;

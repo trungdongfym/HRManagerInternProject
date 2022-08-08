@@ -41,7 +41,7 @@ ProbationaryForm.init(
          type: DataTypes.DATE,
       },
       position: {
-         type: DataTypes.ENUM(...rolesArray),
+         type: DataTypes.STRING,
       },
       comments: {
          type: DataTypes.STRING,
