@@ -98,7 +98,7 @@ User.init(
    {
       sequelize,
       modelName: 'User',
-      tableName: 'User',
+      tableName: 'user',
       paranoid: true,
       scopes: {
          populateManager: {

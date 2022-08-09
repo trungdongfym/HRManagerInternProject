@@ -51,7 +51,7 @@ AnnualReviewForm.init(
    },
    {
       sequelize,
-      tableName: 'AnnualReviewForm',
+      tableName: 'annualreviewform',
       modelName: 'AnnualReviewForm',
       timestamps: false,
    }

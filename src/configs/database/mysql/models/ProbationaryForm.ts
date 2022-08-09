@@ -52,7 +52,7 @@ ProbationaryForm.init(
    },
    {
       sequelize,
-      tableName: 'ProbationaryForm',
+      tableName: 'probationaryform',
       modelName: 'ProbationaryForm',
       timestamps: false,
    }
