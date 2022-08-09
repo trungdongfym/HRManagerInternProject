@@ -128,7 +128,7 @@ class ProbFormService {
       // Only admin, drirector, HR or Actor is owner of form is pass
       if (actor.role === RolesEnum.Manager || actor.role === RolesEnum.Employee) {
          if (!filter?.ownerID) {
-            throw HttpErrors.Forbiden(`You don't have permission to get this resource!`);
+            filter.ownerID = actor.userID;
          } else {
             if (filter.ownerID !== actor.userID) {
                throw HttpErrors.Forbiden(`You don't have permission to get this resource!`);

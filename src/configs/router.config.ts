@@ -10,7 +10,6 @@ function routerConfig(app: express.Express) {
    for (const route of routes) {
       const pathRoute = path.normalize(route);
       const routeModule = require(pathRoute).default;
-      
       if (routeModule) {
          console.log(`Ready route /${AppConst.API_PREFIX}/${AppConst.API_VERSION}/${routeModule}`);
       }
