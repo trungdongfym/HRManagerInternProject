@@ -297,7 +297,7 @@ paths:
                  type: boolean
          responses:
             200:
-               description: ''
+               description: 'ok'
                content:
                   application/json:
                      example:
@@ -1175,12 +1175,15 @@ paths:
                  type: string
             - name: filter[formType]
               in: query
+              description: '
+                 <b>Possible values:</b> annualReviewForm, probationaryForm<br/>
+                 '
               schema:
                  type: string
             - name: detailsField
               in: query
               style: form
-              explode: false
+              explode: true
               schema:
                  type: array
                  items:
@@ -1394,7 +1397,7 @@ components:
                type: string
             formType:
                type: string
-               enum: ['populateAnnualForm', 'populateProbForm']
+               enum: ['annualReviewForm', 'probationaryForm']
             describe:
                type: string
             note:

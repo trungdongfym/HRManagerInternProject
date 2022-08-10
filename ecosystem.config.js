@@ -3,6 +3,7 @@ module.exports = {
     name: 'HRManagement',
     script: "./src/app.ts",
     exec_mode: "cluster",
+    instance_var: 'INSTANCE_ID',
     env_dev: {
       NODE_ENV: "dev"
     }

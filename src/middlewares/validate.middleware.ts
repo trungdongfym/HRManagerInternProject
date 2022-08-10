@@ -26,6 +26,7 @@ export default class Validate {
       return async (req: Request, res: Response, next: NextFunction) => {
          const data = req.query?.qs ?? req.query; // qs for qs libary
          try {
+            console.log(data);
             const queryParam = await Validate.validateData(validationSchema, data);
             req.query = queryParam;
             next();

@@ -123,7 +123,7 @@ class ProbFormService {
 
    // get forms
    public async getProbForms(queryParams: IFormQueryParams<IProbationaryForm>, actor: ITokenPayload) {
-      const { filter, page, pageSize, search, sort } = queryParams;
+      const { filter = {}, page, pageSize, search, sort } = queryParams;
 
       // Only admin, drirector, HR or Actor is owner of form is pass
       if (actor.role === RolesEnum.Manager || actor.role === RolesEnum.Employee) {
