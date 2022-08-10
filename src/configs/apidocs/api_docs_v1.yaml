@@ -29,7 +29,6 @@ paths:
                   schema:
                      title: loginBody
                      required:
-                        - confirmPassword
                         - email
                         - password
                      type: object
@@ -38,12 +37,9 @@ paths:
                            type: string
                         password:
                            type: string
-                        confirmPassword:
-                           type: string
                      example:
                         email: admin@gmail.com
                         password: Ledong1
-                        confirmPassword: Ledong1
             required: true
          responses:
             200:

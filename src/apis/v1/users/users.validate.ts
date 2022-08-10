@@ -47,7 +47,6 @@ class UserValidate {
          .email({ tlds: { allow: false } })
          .required(),
       password: Joi.string().regex(Regex.regexPassword).required(),
-      confirmPassword: Joi.ref('password'),
    });
 
    public static adminQueryUserParamsSchema: Joi.ObjectSchema<IAdminQueryUserParams> = Joi.object()
